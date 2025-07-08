@@ -31,7 +31,7 @@ const SLEEP_START_TIME = 'sleepStartTime';
 const SLEEP_END_TIME = 'sleepEndTime';
 
 const FREQUENCY_OPTIONS = [
-  // { label: "1 min", value: 1, subLabel: "Testing" },
+  { label: "1 min", value: 1, subLabel: "Testing" },
   { label: "15 min", value: 15, subLabel: "🌬️ Frequent Breaths" },
   { label: "30 min", value: 30, subLabel: "♩ Gentle Rhythm" },
   { label: "45 min", value: 45, subLabel: "🧘 Mindful Cadence" },
@@ -119,7 +119,25 @@ export default function NotificationsPage() {
     ]).start();
 
     setSelectedFrequency(minutes);
-    await setScrollReminderFrequency(minutes);
+    
+    try {
+      await setScrollReminderFrequency(minutes);
+      
+      // Show brief success feedback
+      Alert.alert(
+        "Frequency Updated! ✅",
+        `Your notifications will now arrive every ${minutes} minute${minutes !== 1 ? 's' : ''}. All scheduled notifications have been updated with the new timing.`,
+        [{ text: "Got it", style: "default" }],
+        { cancelable: true }
+      );
+    } catch (error) {
+      console.error('Error updating frequency:', error);
+      Alert.alert(
+        "Update Failed",
+        "There was an issue updating the notification frequency. Please try again.",
+        [{ text: "OK", style: "default" }]
+      );
+    }
   };
 
   const loadReminders = async () => {

@@ -48,65 +48,22 @@ export const getScrollReminderFrequency = async () => {
 
 export const setScrollReminderFrequency = async (minutes) => {
   try {
+    console.log(`\n🔄 Updating notification frequency to ${minutes} minutes`);
     await AsyncStorage.setItem(SCROLL_REMINDER_KEY, minutes.toString());
-    await scheduleScrollReminder();
+
+    // Force reschedule to apply new frequency immediately
+    console.log("🚀 Force rescheduling notifications with new frequency...");
+    await scheduleScrollReminder(minutes, true);
+
+    console.log(
+      `✅ Successfully updated notification frequency to ${minutes} minutes`
+    );
     return true;
   } catch (error) {
     console.error("Error setting scroll reminder frequency:", error);
     return false;
   }
 };
-
-// Add this function to generate dynamic content for repeating notifications
-const createDynamicNotificationContent = () => {
-  return {
-    title: "Mindful Check",
-    body: "Loading mindful reminder...",
-    sound: "default",
-    data: {
-      isDynamic: true, // Flag to identify dynamic notifications
-    },
-  };
-};
-
-// Add notification handler for received notifications
-Notifications.addNotificationReceivedListener(async (notification) => {
-  // Only handle repeating notifications that are marked as dynamic
-  if (notification.request.content.data?.isDynamic) {
-    try {
-      // Get new random content
-      const newContent = await getRandomNotification();
-
-      // Cancel the current notification
-      await Notifications.cancelScheduledNotificationAsync(
-        notification.request.identifier
-      );
-
-      // Reschedule with new content
-      const frequency = await getScrollReminderFrequency();
-      if (!frequency) return;
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: newContent.title,
-          body: newContent.body,
-          sound: "default",
-          data: {
-            isDynamic: true,
-          },
-        },
-        trigger: {
-          type: "timeInterval",
-          seconds: frequency * 60,
-          repeats: true,
-        },
-        identifier: SCROLL_REMINDER_ID,
-      });
-    } catch (error) {
-      console.error("Error updating dynamic notification:", error);
-    }
-  }
-});
 
 // Schedules the repeating "mindful scrolling" reminder.
 // If forceReschedule is false (default) and an identical reminder is already
