@@ -1,8 +1,17 @@
-import React from "react";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import MindfulBackground from "../components/MindfulBackground";
+import PaywallModal from "../components/PaywallModal";
 
 const SettingsPage = () => {
+  const [paywallVisible, setPaywallVisible] = useState(false);
+
   return (
     <MindfulBackground>
       <SafeAreaView style={styles.container}>
@@ -12,8 +21,22 @@ const SettingsPage = () => {
           <Text style={styles.description}>
             Customize your mindfulness experience and app preferences.
           </Text>
+
+          {/* Test Paywall Modal Button */}
+          <TouchableOpacity
+            style={styles.testButton}
+            onPress={() => setPaywallVisible(true)}
+          >
+            <Text style={styles.testButtonText}>🎯 Test Paywall Modal</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+      />
     </MindfulBackground>
   );
 };
@@ -49,6 +72,24 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 24,
     opacity: 0.7,
+    marginBottom: 32,
+  },
+  testButton: {
+    backgroundColor: "rgba(99, 102, 241, 0.9)",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  testButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
 

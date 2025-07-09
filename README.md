@@ -1110,3 +1110,150 @@ If current time falls between those, suppress notification.
 Persist sleep start/end and toggle status using AsyncStorage.
 
 Optional: On sleep time overlap (e.g., 10 PM to 7 AM across midnight), handle wrap-around logic properly.
+
+# Paywall Modal – Scroll Recovery App
+
+## 🧭 Objective
+
+Design and implement a **full-screen, scrollable paywall modal** that persuades users to upgrade by showcasing the benefits of premium features in a calming, mindful UI. This modal will feature a **fixed plan selector at the bottom**, **scrollable benefits section**, and a **mindful hero image and quote** at the top to emotionally engage the user.
+
+---
+
+## 🖼️ UI Layout Overview
+
+The modal is broken into four primary zones:
+
+1. **Top Navigation (fixed)**
+2. **Scrollable Content Area (flex-grow)**
+3. **Plan Selection Section (fixed-bottom)**
+4. **Legal Footer (bottom of scrollable content)**
+
+---
+
+## 🔧 Functional Requirements
+
+### ✅ Modal Behavior
+
+- Full-screen overlay (z-index over current app view)
+- Scrollable main content
+- `X` button at top-right to close the modal
+- `Restore Purchases` as a tappable text link at top-left
+
+---
+
+## ✨ UI Elements and Styling Details
+
+### 1. 🧭 **Hero Section**
+
+- **Headline**:  
+  `“You weren’t born to scroll. You were made to live.”`  
+  Font: Large, serif or soft-rounded sans-serif. Centered.
+- **Subheadline**:  
+  _Unlock the full experience to take back your time, your mind, and your life — one intentional moment at a time._  
+  Font: Medium, muted, centered.
+
+- **Hero Illustration** (centered):  
+  saved at /assets/images/paywallImages.png
+
+---
+
+### 2. 🛠️ **Features List (scrollable section)**
+
+Each feature should be styled like a horizontal card or soft container with:
+
+- Rounded corners
+- Emoji icon on the left
+- Headline + supporting copy
+- Soft divider or padding between each card
+
+#### List of Features:
+
+- `🧠 Interruptive Mindful Nudges`: Replace late-night doomscrolling with timely, self-reflective prompts like _“Is this helping me?”_
+- `💥 Scroll-Free Streak Builder`: XP-powered streaks to reward intentional use.
+- `📊 Detailed Journey Tracking`: See how often you interrupted scrolling or reflected.
+- `🌱 Power Habits`: Unlock 10 science-backed habits (e.g., Cold Showers, Digital Detox).
+- `😊 Mood Emojis & Check-ins`: Log how you feel and track what improves your day.
+- `📆 Calendar + Heatmaps`: Visual patterns of behavior and mood over time.
+- `🧘 Breathing Exercises`: Quick, guided calming sessions.
+
+---
+
+### 3. 💬 **User Testimonial**
+
+Simple centered quote block:
+
+> _“After just one week, I realized how much time I was giving away for free.”_
+
+---
+
+### 4. 💰 **Plan Selection Section** (Fixed Bottom)
+
+This area **remains visible at all times**, docked to the bottom of the modal.
+
+- Background: White or slightly translucent with gentle drop shadow
+- Rounded top corners
+- Display both pricing plans:
+
+```
+
+\$3.99 / week – Start simple, stay grounded
+\$29.99 / year – Best value | save 85% (7-day free trial)
+
+```
+
+- CTA Button:
+  **Start 7-Day Free Trial** → Full-width, rounded button with subtle glow
+- Small text:
+  `🛡️ Cancel anytime. No charges until trial ends.` (beneath button)
+
+---
+
+### 5. ⚖️ Legal Links (at bottom of scrollable content)
+
+Text links (center-aligned):
+
+- **Terms & Conditions**
+- **Privacy Policy**
+
+Use `TouchableOpacity` or `Pressable` with light underline or muted gray color.
+
+---
+
+## 🧭 Header Navigation
+
+- Top-left: `Restore Purchases` (small tappable link)
+- Top-right: `X` icon to close modal (absolutely positioned)
+
+---
+
+## 🎨 Theming & Visual Style
+
+- **Background**: Gentle yellow or lavender blur
+- **Modal Card**: White or cream with soft shadows and rounded edges
+- **Emoji Icons**: For each feature card (use actual Unicode emoji or local assets)
+- **Fonts**: Rounded, soft sans-serif or elegant serif
+- **Animations**:
+- Slight shimmer/sparkle on XP streak icon
+- Button glow effect on hover/press
+
+---
+
+## ✅ Deliverables
+
+- One full-screen modal component (e.g., `PaywallModal.js`)
+- Scrollable layout for benefits
+- Sticky bottom pricing section
+- Hook up close and restore logic with placeholder functions
+- Use `Image` or `SVG` placeholder for mindful hero illustration
+
+---
+
+## 📱 Responsiveness
+
+- Ensure vertical scrolling works on smaller phones
+- Allow the plan selector to remain fixed as user scrolls features
+- Optimize for both light and dark themes (if supported)
+
+```
+
+```
