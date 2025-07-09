@@ -1,3 +1,4 @@
+import useRevenueCat from "@/hooks/useRevenueCat";
 import { BlurView } from "expo-blur";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -11,13 +12,26 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
 const PaywallModal = ({ visible, onClose }) => {
+  
   const [selectedPlan, setSelectedPlan] = useState("yearly"); // "weekly" or "yearly"
+
+  const {currentOffering} = useRevenueCat()
+
+  // if(!currentOffering){
+  //   return(
+  //     <View className="bg-[#FFFDE9] flex-1 items-center justify-center">
+  //       <ActivityIndicator size="large" color="#121111" />
+  //       <Text className="text-[#121111] mt-4">Loading plans...</Text>
+  //       <Text className="text-[#121111] mt-2">Please wait a moment</Text>
+  //     </View>
+  //   )
+  // }
 
   const shimmerAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
