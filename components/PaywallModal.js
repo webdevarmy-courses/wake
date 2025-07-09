@@ -2,6 +2,8 @@ import useRevenueCat from "@/hooks/useRevenueCat";
 import { BlurView } from "expo-blur";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   Linking,
@@ -14,6 +16,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import Purchases from "react-native-purchases";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,16 +25,6 @@ const PaywallModal = ({ visible, onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState("yearly"); // "weekly" or "yearly"
 
   const {currentOffering} = useRevenueCat()
-
-  // if(!currentOffering){
-  //   return(
-  //     <View className="bg-[#FFFDE9] flex-1 items-center justify-center">
-  //       <ActivityIndicator size="large" color="#121111" />
-  //       <Text className="text-[#121111] mt-4">Loading plans...</Text>
-  //       <Text className="text-[#121111] mt-2">Please wait a moment</Text>
-  //     </View>
-  //   )
-  // }
 
   const shimmerAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -192,22 +185,60 @@ const PaywallModal = ({ visible, onClose }) => {
     });
   };
 
-  const handleRestorePurchases = () => {
-    console.log("Restore purchases tapped");
-  };
+  const handleRestorePurchases = async () => {
+    const purchaseInfo = await Purchases.restorePurchases();
 
-  const handleStartTrial = () => {
-    console.log(`Start trial tapped for ${selectedPlan} plan`);
-    if (selectedPlan === "weekly") {
-      console.log("Weekly plan: $3.99/week");
-    } else {
-      console.log("Yearly plan: $29.99/year with 7-day free trial");
+    if(purchaseInfo?.activeSubscriptions?.length > 0) {
+      Alert.alert("Success", "Your purchases have been restored.");
+      handleClose();
+    }else{
+      Alert.alert("No Purchases", "No active subscriptions found.");
     }
   };
 
-  const handlePlanSelection = (plan) => {
-    setSelectedPlan(plan);
-    console.log(`Selected plan: ${plan}`);
+  const handleStartTrial = async () => {
+    console.log(`Start trial tapped for ${selectedPlan} plan`);
+    
+    if (selectedPlan === "weekly") {
+      await handleWeeklyPurchase();
+    } else if (selectedPlan === "yearly") {
+      await handleYearlyPurchase();
+    }
+  };
+
+  const handleYearlyPurchase = async () => {
+    if(!currentOffering?.annual){
+      return;
+    }
+  
+    try {
+      const purchaseInfo = await Purchases.purchasePackage(currentOffering.annual);
+  
+      if(purchaseInfo?.customerInfo?.entitlements?.active?.PREMIUM) {
+        console.log("Yearly purchase successful");
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+    }
+  };
+  
+  // And update your handleWeeklyPurchase to not be called on plan selection:
+  const handleWeeklyPurchase = async () => {
+    if(!currentOffering?.weekly){
+      return;
+    }
+  
+    try {
+      const purchaseInfo = await Purchases.purchasePackage(currentOffering.weekly);
+  
+      if(purchaseInfo?.customerInfo?.entitlements?.active?.PREMIUM) {
+        console.log("Weekly purchase successful");
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+    }
   };
 
   const handleTerms = () => {
@@ -221,6 +252,16 @@ const PaywallModal = ({ visible, onClose }) => {
       "https://island-banana-8a6.notion.site/Privacy-Policy-for-Wake-Scroll-22b44938f4f5803cb500d692a1e00495?source=copy_link"
     );
   };
+
+  if(!currentOffering){
+    return(
+      <View className="bg-[#FFFDE9] flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#121111" />
+        <Text className="text-[#121111] mt-4">Loading plans...</Text>
+        <Text className="text-[#121111] mt-2">Please wait a moment</Text>
+      </View>
+    )
+  }
 
   const getTodaysDate = () => {
     const today = new Date();
@@ -624,7 +665,7 @@ const PaywallModal = ({ visible, onClose }) => {
                     {/* Plans Container */}
                     <View style={styles.plansContainer}>
                       <TouchableOpacity
-                        onPress={() => handlePlanSelection("weekly")}
+                        onPress={() => setSelectedPlan("weekly")}
                         style={[
                           styles.planCard,
                           selectedPlan === "weekly" && styles.selectedPlan,
@@ -645,7 +686,7 @@ const PaywallModal = ({ visible, onClose }) => {
                             },
                           ]}
                         >
-                          <Text style={styles.planPrice}>$3.99</Text>
+                          <Text style={styles.planPrice}>{currentOffering.weekly?.product.priceString}</Text>
                           <Text style={styles.planPeriod}>per week</Text>
                           <Text style={styles.planDescription}>
                             Start simple, stay grounded
@@ -659,7 +700,7 @@ const PaywallModal = ({ visible, onClose }) => {
                       </TouchableOpacity>
 
                       <TouchableOpacity
-                        onPress={() => handlePlanSelection("yearly")}
+                        onPress={() => setSelectedPlan("yearly")}
                         style={[
                           styles.planCard,
                           styles.yearlyPlan,
@@ -674,7 +715,7 @@ const PaywallModal = ({ visible, onClose }) => {
                             },
                           ]}
                         >
-                          <Text style={styles.planPrice}>$29.99</Text>
+                          <Text style={styles.planPrice}>{currentOffering.annual?.product.priceString}</Text>
                           <Text style={styles.planPeriod}>per year</Text>
                           <Text style={styles.planDescription}>
                             Save 85% • 7-day free trial
