@@ -6,6 +6,7 @@ import {
   Alert,
   Animated,
   Dimensions,
+  Image,
   Linking,
   Modal,
   Pressable,
@@ -515,7 +516,7 @@ const PaywallModal = ({ visible, onClose }) => {
                     </Text>
 
                     {/* Hero Image */}
-                    {/* <View style={styles.heroImageContainer}>
+                    <View style={styles.heroImageContainer}>
                       <Image
                         source={require("../assets/images/paywallImage.png")}
                         style={styles.heroImage}
@@ -531,7 +532,7 @@ const PaywallModal = ({ visible, onClose }) => {
                       >
                         <Text style={styles.heroImageText}>✨</Text>
                       </Animated.View>
-                    </View> */}
+                    </View>
 
                     {/* Floating sparkles around hero */}
                     <SparkleElement style={styles.heroSparkle1} />
