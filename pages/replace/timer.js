@@ -42,7 +42,7 @@ const TimerPage = () => {
 
   const timerOptions = [
     { minutes: 10, label: "10 min", color: "#93D5E1" },
-    { minutes: 25, label: "25 min", color: "#F4D8FE" },
+    { minutes: 15, label: "15 min", color: "#F4D8FE" },
     { minutes: 40, label: "40 min", color: "#FFE37D" },
   ];
 
@@ -421,17 +421,17 @@ const TimerPage = () => {
               <TouchableOpacity
                 style={[
                   styles.customOption,
-                  selectedMinutes === 15 && styles.customOptionSelected,
+                  selectedMinutes === 25 && styles.customOptionSelected,
                 ]}
-                onPress={() => selectTimer(15)}
+                onPress={() => selectTimer(25)}
               >
                 <Text
                   style={[
                     styles.customOptionText,
-                    selectedMinutes === 15 && styles.customOptionTextSelected,
+                    selectedMinutes === 25 && styles.customOptionTextSelected,
                   ]}
                 >
-                  15 min (Pomodoro)
+                  25 min (Pomodoro)
                 </Text>
               </TouchableOpacity>
             </View>
