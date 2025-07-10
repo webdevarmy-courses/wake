@@ -23,7 +23,7 @@ import {
 import { addXP } from "../../utils/xpManager";
 
 const TimerPage = () => {
-  const [selectedMinutes, setSelectedMinutes] = useState(15);
+  const [selectedMinutes, setSelectedMinutes] = useState(25);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -417,7 +417,7 @@ const TimerPage = () => {
                 ))}
               </View>
 
-              {/* Custom 15 min option */}
+              {/* Custom 25 min option */}
               <TouchableOpacity
                 style={[
                   styles.customOption,
