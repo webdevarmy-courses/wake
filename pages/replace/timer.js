@@ -13,7 +13,9 @@ import {
   View,
 } from "react-native";
 import MindfulBackground from "../../components/MindfulBackground";
+import PaywallModal from "../../components/PaywallModal";
 import TimerCalendarModal from "../../components/TimerCalendarModal";
+import useRevenueCat from "../../hooks/useRevenueCat";
 import {
   getTodaysTimerSessions,
   saveTimerSession,
@@ -26,8 +28,12 @@ const TimerPage = () => {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [appStateVisible, setAppStateVisible] = useState(AppState.currentState);
   const [todaysSessionCount, setTodaysSessionCount] = useState(0);
+
+  // Revenue Cat hook to check premium status
+  const { isPremiumMember } = useRevenueCat();
 
   const timerRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -228,8 +234,31 @@ const TimerPage = () => {
   };
 
   const handleCalendarPress = () => {
-    setShowCalendar(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (isPremiumMember) {
+      setShowCalendar(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Alert.alert(
+        "Track your progress with premium",
+        "Unlock detailed progress tracking, calendar view, and comprehensive analytics to monitor your mindfulness journey.",
+        [
+          {
+            text: "Maybe Later",
+            style: "cancel",
+            onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
+          },
+          {
+            text: "Upgrade Now",
+            style: "default",
+            onPress: () => {
+              setShowPaywall(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]
+      );
+    }
   };
 
   const getProgressPercentage = () => {
@@ -437,6 +466,11 @@ const TimerPage = () => {
         <TimerCalendarModal
           visible={showCalendar}
           onClose={() => setShowCalendar(false)}
+        />
+
+        <PaywallModal
+          visible={showPaywall}
+          onClose={() => setShowPaywall(false)}
         />
       </SafeAreaView>
     </MindfulBackground>

@@ -17,7 +17,9 @@ import {
   View,
 } from "react-native";
 import MindfulBackground from "../components/MindfulBackground";
+import PaywallModal from "../components/PaywallModal";
 import TaskCalendarModal from "../components/TaskCalendarModal";
+import useRevenueCat from "../hooks/useRevenueCat";
 import { getGoalStreak, updateGoalStreak } from "../utils/personalGoalManager";
 import { getTaskStreak, updateTaskStreak } from "../utils/preBuiltTaskManager";
 import { isTaskCompletedToday, saveTaskCompletion } from "../utils/taskManager";
@@ -36,8 +38,12 @@ const TaskDetailPage = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [streak, setStreak] = useState({ currentStreak: 0, highestStreak: 0 });
+
+  // Revenue Cat hook to check premium status
+  const { isPremiumMember } = useRevenueCat();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -105,7 +111,7 @@ const TaskDetailPage = () => {
           [
             {
               text: "View Progress",
-              onPress: () => setShowCalendar(true),
+              onPress: handleCalendarPress,
               style: "default",
             },
             {
@@ -143,7 +149,7 @@ const TaskDetailPage = () => {
       [
         {
           text: "View Progress",
-          onPress: () => setShowCalendar(true),
+          onPress: handleCalendarPress,
           style: "default",
         },
         {
@@ -174,6 +180,30 @@ const TaskDetailPage = () => {
           scrollViewRef.current.scrollToEnd({ animated: true });
         }
       }, 200);
+    }
+  };
+
+  const handleCalendarPress = () => {
+    if (isPremiumMember) {
+      setShowCalendar(true);
+    } else {
+      Alert.alert(
+        "Track your progress with premium",
+        "Unlock detailed progress tracking, calendar view, and comprehensive analytics to monitor your mindfulness journey.",
+        [
+          {
+            text: "Maybe Later",
+            style: "cancel",
+          },
+          {
+            text: "Upgrade Now",
+            style: "default",
+            onPress: () => {
+              setShowPaywall(true);
+            },
+          },
+        ]
+      );
     }
   };
 
@@ -365,7 +395,7 @@ const TaskDetailPage = () => {
 
                 <TouchableOpacity
                   style={styles.calendarButton}
-                  onPress={() => setShowCalendar(true)}
+                  onPress={handleCalendarPress}
                 >
                   <Text style={styles.calendarButtonText}>📅</Text>
                 </TouchableOpacity>
@@ -535,6 +565,12 @@ const TaskDetailPage = () => {
             visible={showCalendar}
             onClose={() => setShowCalendar(false)}
             task={task}
+          />
+
+          {/* PaywallModal */}
+          <PaywallModal
+            visible={showPaywall}
+            onClose={() => setShowPaywall(false)}
           />
         </KeyboardAvoidingView>
       </SafeAreaView>

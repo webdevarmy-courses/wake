@@ -20,6 +20,8 @@ import {
 
 import AddCustomReminderModal from "@/components/AddCustomReminderModal";
 import MindfulBackground from "@/components/MindfulBackground";
+import PaywallModal from "@/components/PaywallModal";
+import useRevenueCat from "@/hooks/useRevenueCat";
 import { deleteCustomReminder, getNotificationsEnabled, getScrollReminderFrequency, handleSleepModeChange, setNotificationsEnabled, setScrollReminderFrequency } from "@/utils/notificationManager";
 
 const { width } = Dimensions.get("window");
@@ -31,7 +33,7 @@ const SLEEP_START_TIME = 'sleepStartTime';
 const SLEEP_END_TIME = 'sleepEndTime';
 
 const FREQUENCY_OPTIONS = [
-  { label: "1 min", value: 1, subLabel: "Testing" },
+  { label: "5 min", value: 5, subLabel: "Quick Nudge" },
   { label: "15 min", value: 15, subLabel: "🌬️ Frequent Breaths" },
   { label: "30 min", value: 30, subLabel: "♩ Gentle Rhythm" },
   { label: "45 min", value: 45, subLabel: "🧘 Mindful Cadence" },
@@ -70,6 +72,10 @@ export default function NotificationsPage() {
   const [sleepEndTime, setSleepEndTime] = useState(new Date().setHours(7, 0, 0, 0));
   const [activeTimePickerType, setActiveTimePickerType] = useState<'start' | 'end' | null>(null);
   const slideUpAnim = useRef(new Animated.Value(0)).current;
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Premium checking
+  const { isPremiumMember } = useRevenueCat();
 
   useEffect(() => {
     loadInitialState();
@@ -98,6 +104,23 @@ export default function NotificationsPage() {
   };
 
   const handleFrequencyChange = async (minutes: number) => {
+    // Check if user is trying to select a premium frequency (anything other than 45 min)
+    if (minutes !== 45 && !isPremiumMember) {
+      Alert.alert(
+        "Custom frequencies require premium",
+        "Upgrade to premium to customize your notification timing and find the perfect rhythm for your mindful awareness.",
+        [
+          { text: "Maybe Later", style: "cancel" },
+          { 
+            text: "Upgrade Now", 
+            style: "default",
+            onPress: () => setShowPaywall(true)
+          }
+        ]
+      );
+      return;
+    }
+
     // Animate the chip bounce
     const animation = chipAnimations[minutes];
     Animated.sequence([
@@ -355,6 +378,24 @@ export default function NotificationsPage() {
   );
 
   const handleSleepModeToggle = async () => {
+    // Check if user is premium
+    if (!isPremiumMember) {
+      Alert.alert(
+        "Sleep Mode requires premium",
+        "Upgrade to premium to automatically pause notifications during your sleep hours and maintain healthier digital habits.",
+        [
+          { text: "Maybe Later", style: "cancel" },
+          { 
+            text: "Upgrade Now", 
+            style: "default",
+            onPress: () => setShowPaywall(true)
+          }
+        ]
+      );
+      return;
+    }
+
+    // Premium users - proceed with normal functionality
     const newState = !sleepModeEnabled;
     setSleepModeEnabled(newState);
     
@@ -541,6 +582,7 @@ export default function NotificationsPage() {
                         style={[
                           styles.chip,
                           selectedFrequency === option.value && styles.chipSelected,
+                          option.value !== 45 && !isPremiumMember && styles.chipPremium,
                         ]}
                         onPress={() => notificationsEnabled && handleFrequencyChange(option.value)}
                         disabled={!notificationsEnabled}
@@ -553,6 +595,7 @@ export default function NotificationsPage() {
                             ]}
                           >
                             {option.label}
+                            {option.value !== 45 && !isPremiumMember && " 🔒"}
                           </Text>
                           <Text
                             style={[
@@ -622,7 +665,10 @@ export default function NotificationsPage() {
                       styles.sleepModeToggleText,
                       sleepModeEnabled && styles.sleepModeToggleTextEnabled
                     ]}>
-                      {sleepModeEnabled ? '✅ Sleep Mode On' : '💤 Enable Sleep Mode'}
+                      {sleepModeEnabled 
+                        ? '✅ Sleep Mode On' 
+                        : `💤 Enable Sleep Mode${!isPremiumMember ? ' (🔒)' : ''}`
+                      }
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -661,6 +707,11 @@ export default function NotificationsPage() {
           visible={modalVisible && notificationsEnabled}
           onClose={() => setModalVisible(false)}
           onSuccess={handleReminderCreated}
+        />
+
+        <PaywallModal
+          visible={showPaywall}
+          onClose={() => setShowPaywall(false)}
         />
       </SafeAreaView>
     </MindfulBackground>
@@ -796,6 +847,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "rgba(147, 213, 225, 0.7)",
     transform: [{ scale: 1.02 }],
+  },
+  chipPremium: {
+    opacity: 0.7, // Dim the chip for non-premium users
+    backgroundColor: "rgba(255, 255, 255, 0.6)", // Slightly dimmer background
+    borderColor: "rgba(200, 200, 200, 0.3)", // Dimmer border
   },
   chipContent: {
     alignItems: 'center',

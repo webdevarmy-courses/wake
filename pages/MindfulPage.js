@@ -8,10 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+  StyleSheet
 } from "react-native";
 import CatchScrollButton from "../components/CatchScrollButton";
 import MindfulBackground from "../components/MindfulBackground";
@@ -103,7 +100,7 @@ const MindfulPage = () => {
           <XPJar currentXP={currentXP} onPress={handleJarPress} />
 
           {/* Paywall Test Button - For Testing Only */}
-          <View style={styles.testSection}>
+          {/* <View style={styles.testSection}>
             <TouchableOpacity
               style={styles.paywallTestButton}
               onPress={() => setPaywallVisible(true)}
@@ -114,7 +111,7 @@ const MindfulPage = () => {
               </Text>
               <Text style={styles.paywallTestSubtext}>Test Paywall Modal</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </ScrollView>
 
         {/* XP Rules Modal */}

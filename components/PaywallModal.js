@@ -2,7 +2,6 @@ import useRevenueCat from "@/hooks/useRevenueCat";
 import { BlurView } from "expo-blur";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
@@ -25,7 +24,7 @@ const PaywallModal = ({ visible, onClose }) => {
   
   const [selectedPlan, setSelectedPlan] = useState("yearly"); // "weekly" or "yearly"
 
-  const {currentOffering} = useRevenueCat()
+  const {currentOffering, isPremiumMember} = useRevenueCat()
 
   const shimmerAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -254,12 +253,28 @@ const PaywallModal = ({ visible, onClose }) => {
     );
   };
 
+  if(!currentOffering && !isPremiumMember){
+    return(
+      <View className="bg-[#FFFDE9] flex-1 items-center justify-center">
+        {/* <ActivityIndicator size="large" color="#121111" />
+        <Text className="text-[#121111] mt-4">Loading plans...</Text>
+        <Text className="text-[#121111] mt-2">Please wait a moment</Text> */}
+      </View>
+    )
+  }
+
+  // If user is already premium, don't show paywall
+  if(isPremiumMember){
+    return null;
+  }
+
+  // If no offering available for non-premium users, show loading
   if(!currentOffering){
     return(
       <View className="bg-[#FFFDE9] flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#121111" />
+        {/* <ActivityIndicator size="large" color="#121111" />
         <Text className="text-[#121111] mt-4">Loading plans...</Text>
-        <Text className="text-[#121111] mt-2">Please wait a moment</Text>
+        <Text className="text-[#121111] mt-2">Please wait a moment</Text> */}
       </View>
     )
   }

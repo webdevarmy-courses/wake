@@ -1,3 +1,4 @@
+import { BlurView } from "expo-blur";
 import React, {
   forwardRef,
   useEffect,
@@ -12,11 +13,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import useRevenueCat from "../hooks/useRevenueCat";
 import {
   getCatchScrollHistory,
   getTodaysCatchScrollTaps,
   getTotalCatchScrollTaps,
 } from "../utils/xpManager";
+import PaywallModal from "./PaywallModal";
 
 const { width } = Dimensions.get("window");
 
@@ -30,6 +33,10 @@ const CatchScrollStats = forwardRef((props, ref) => {
   const [currentWeekTotal, setCurrentWeekTotal] = useState(0);
   const [weeklyChange, setWeeklyChange] = useState(null); // {percentage: number, isDecrease: boolean}
   const [selectedDay, setSelectedDay] = useState(null); // {day: string, taps: number, date: string}
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Premium checking
+  const { isPremiumMember } = useRevenueCat();
 
   // Expose refreshData method to parent component
   useImperativeHandle(ref, () => ({
@@ -216,110 +223,249 @@ const CatchScrollStats = forwardRef((props, ref) => {
           },
         ]}
       >
-        {/* Simplified stats - current week total and change */}
-        <View style={styles.simpleStats}>
-          <View style={styles.weekStatsRow}>
-            <Text style={styles.totalTapsNumber}>{currentWeekTotal}</Text>
-            {weeklyChange && (
-              <View
-                style={[
-                  styles.changeContainer,
-                  {
-                    backgroundColor: weeklyChange.isDecrease
-                      ? "#E8F5E8"
-                      : "#FFF0F0",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.changeText,
-                    { color: weeklyChange.isDecrease ? "#4CAF50" : "#F44336" },
-                  ]}
-                >
-                  {weeklyChange.isDecrease ? "↓" : "↑"}{" "}
-                  {weeklyChange.percentage.toFixed(0)}
-                  <Text style={styles.percentSign}>%</Text>
-                </Text>
+        {isPremiumMember ? (
+          <>
+            {/* Simplified stats - current week total and change */}
+            <View style={styles.simpleStats}>
+              <View style={styles.weekStatsRow}>
+                <Text style={styles.totalTapsNumber}>{currentWeekTotal}</Text>
+                {weeklyChange && (
+                  <View
+                    style={[
+                      styles.changeContainer,
+                      {
+                        backgroundColor: weeklyChange.isDecrease
+                          ? "#E8F5E8"
+                          : "#FFF0F0",
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.changeText,
+                        { color: weeklyChange.isDecrease ? "#4CAF50" : "#F44336" },
+                      ]}
+                    >
+                      {weeklyChange.isDecrease ? "↓" : "↑"}{" "}
+                      {weeklyChange.percentage.toFixed(0)}
+                      <Text style={styles.percentSign}>%</Text>
+                    </Text>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
-        </View>
-
-        {/* Clean week navigation and chart */}
-        <View style={styles.chartSection}>
-          <View style={styles.cleanNavigation}>
-            <TouchableOpacity
-              style={styles.cleanNavButton}
-              onPress={() => navigateWeek("prev")}
-            >
-              <Text style={styles.cleanNavText}>‹</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.weekTitle}>{getWeekDisplayText()}</Text>
-
-            <TouchableOpacity
-              style={[
-                styles.cleanNavButton,
-                currentWeekOffset === 0 && styles.navDisabled,
-              ]}
-              onPress={() => navigateWeek("next")}
-              disabled={currentWeekOffset === 0}
-            >
-              <Text
-                style={[
-                  styles.cleanNavText,
-                  currentWeekOffset === 0 && styles.navTextDisabled,
-                ]}
-              >
-                ›
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Simplified chart */}
-          <View style={styles.miniChart}>
-            {weeklyData.map((day, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.miniDay}
-                onPress={() => handleDaySelect(day)}
-                activeOpacity={0.7}
-              >
-                <View
-                  style={[
-                    styles.miniBar,
-                    {
-                      height: Math.max(
-                        (day.taps /
-                          Math.max(...weeklyData.map((d) => d.taps), 1)) *
-                          30,
-                        2
-                      ),
-                      backgroundColor: day.isToday
-                        ? "#4ECDC4"
-                        : day.taps > 0
-                        ? "#93D5E1"
-                        : "#E8E8E8",
-                    },
-                  ]}
-                />
-                <Text style={styles.miniDayLabel}>{day.day.charAt(0)}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Selected day info */}
-          {selectedDay && (
-            <View style={styles.selectedDayInfo}>
-              <Text style={styles.selectedDayDate}>{selectedDay.date}</Text>
-              <Text style={styles.selectedDayTaps}>
-                {selectedDay.taps} {selectedDay.taps === 1 ? "tap" : "taps"}
-              </Text>
             </View>
-          )}
-        </View>
+
+            {/* Clean week navigation and chart */}
+            <View style={styles.chartSection}>
+              <View style={styles.cleanNavigation}>
+                <TouchableOpacity
+                  style={styles.cleanNavButton}
+                  onPress={() => navigateWeek("prev")}
+                >
+                  <Text style={styles.cleanNavText}>‹</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.weekTitle}>{getWeekDisplayText()}</Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.cleanNavButton,
+                    currentWeekOffset === 0 && styles.navDisabled,
+                  ]}
+                  onPress={() => navigateWeek("next")}
+                  disabled={currentWeekOffset === 0}
+                >
+                  <Text
+                    style={[
+                      styles.cleanNavText,
+                      currentWeekOffset === 0 && styles.navTextDisabled,
+                    ]}
+                  >
+                    ›
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Simplified chart */}
+              <View style={styles.miniChart}>
+                {weeklyData.map((day, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.miniDay}
+                    onPress={() => handleDaySelect(day)}
+                    activeOpacity={0.7}
+                  >
+                    <View
+                      style={[
+                        styles.miniBar,
+                        {
+                          height: Math.max(
+                            (day.taps /
+                              Math.max(...weeklyData.map((d) => d.taps), 1)) *
+                              30,
+                            2
+                          ),
+                          backgroundColor: day.isToday
+                            ? "#4ECDC4"
+                            : day.taps > 0
+                            ? "#93D5E1"
+                            : "#E8E8E8",
+                        },
+                      ]}
+                    />
+                    <Text style={styles.miniDayLabel}>{day.day.charAt(0)}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Selected day info */}
+              {selectedDay && (
+                <View style={styles.selectedDayInfo}>
+                  <Text style={styles.selectedDayDate}>{selectedDay.date}</Text>
+                  <Text style={styles.selectedDayTaps}>
+                    {selectedDay.taps} {selectedDay.taps === 1 ? "tap" : "taps"}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </>
+        ) : (
+          <View style={styles.lockedChartContainer}>
+            {/* Render blurred chart content */}
+            <View style={styles.blurredChart}>
+              {/* Simplified stats - current week total and change */}
+              <View style={styles.simpleStats}>
+                <View style={styles.weekStatsRow}>
+                  <Text style={styles.totalTapsNumber}>{currentWeekTotal}</Text>
+                  {weeklyChange && (
+                    <View
+                      style={[
+                        styles.changeContainer,
+                        {
+                          backgroundColor: weeklyChange.isDecrease
+                            ? "#E8F5E8"
+                            : "#FFF0F0",
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.changeText,
+                          { color: weeklyChange.isDecrease ? "#4CAF50" : "#F44336" },
+                        ]}
+                      >
+                        {weeklyChange.isDecrease ? "↓" : "↑"}{" "}
+                        {weeklyChange.percentage.toFixed(0)}
+                        <Text style={styles.percentSign}>%</Text>
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Clean week navigation and chart */}
+              <View style={styles.chartSection}>
+                <View style={styles.cleanNavigation}>
+                  <TouchableOpacity
+                    style={styles.cleanNavButton}
+                    onPress={() => navigateWeek("prev")}
+                  >
+                    <Text style={styles.cleanNavText}>‹</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.weekTitle}>{getWeekDisplayText()}</Text>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.cleanNavButton,
+                      currentWeekOffset === 0 && styles.navDisabled,
+                    ]}
+                    onPress={() => navigateWeek("next")}
+                    disabled={currentWeekOffset === 0}
+                  >
+                    <Text
+                      style={[
+                        styles.cleanNavText,
+                        currentWeekOffset === 0 && styles.navTextDisabled,
+                      ]}
+                    >
+                      ›
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Simplified chart */}
+                <View style={styles.miniChart}>
+                  {weeklyData.map((day, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.miniDay}
+                      onPress={() => handleDaySelect(day)}
+                      activeOpacity={0.7}
+                    >
+                      <View
+                        style={[
+                          styles.miniBar,
+                          {
+                            height: Math.max(
+                              (day.taps /
+                                Math.max(...weeklyData.map((d) => d.taps), 1)) *
+                                30,
+                              2
+                            ),
+                            backgroundColor: day.isToday
+                              ? "#4ECDC4"
+                              : day.taps > 0
+                              ? "#93D5E1"
+                              : "#E8E8E8",
+                          },
+                        ]}
+                      />
+                      <Text style={styles.miniDayLabel}>{day.day.charAt(0)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Selected day info */}
+                {selectedDay && (
+                  <View style={styles.selectedDayInfo}>
+                    <Text style={styles.selectedDayDate}>{selectedDay.date}</Text>
+                    <Text style={styles.selectedDayTaps}>
+                      {selectedDay.taps} {selectedDay.taps === 1 ? "tap" : "taps"}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              <BlurView
+                intensity={20}
+                style={styles.chartBlurOverlay}
+                tint="light"
+              />
+            </View>
+            
+            {/* Lock icon and upgrade prompt */}
+            <View style={styles.lockOverlay}>
+              <Text style={styles.lockIcon}>🔒</Text>
+              <Text style={styles.lockTitle}>Premium Analytics</Text>
+              <Text style={styles.lockDescription}>
+                Track your mindful catches progress over time
+              </Text>
+              <TouchableOpacity
+                style={styles.upgradeButton}
+                onPress={() => setShowPaywall(true)}
+              >
+                <Text style={styles.upgradeButtonText}>Upgrade Now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </Animated.View>
+
+      <PaywallModal
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+      />
     </View>
   );
 });
@@ -507,6 +653,72 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#4ECDC4",
+  },
+  // Premium gate styles
+  lockedChartContainer: {
+    position: "relative",
+  },
+  blurredChart: {
+    position: "relative",
+  },
+  chartBlurOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+  },
+  lockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 16,
+  },
+  lockIcon: {
+    fontSize: 40,
+    marginBottom: 4,
+  },
+  lockTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2C3E50",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  lockDescription: {
+    fontSize: 12,
+    color: "#7F8C8D",
+    opacity: 0.8,
+    textAlign: "center",
+    marginBottom: 10,
+    paddingHorizontal: 40,
+    lineHeight: 20,
+  },
+  upgradeButton: {
+    backgroundColor: "#4ECDC4",
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    shadowColor: "#4ECDC4",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  upgradeButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });
 

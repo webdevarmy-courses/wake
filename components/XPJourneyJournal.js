@@ -1,3 +1,4 @@
+import { BlurView } from "expo-blur";
 import React, {
   forwardRef,
   useEffect,
@@ -14,12 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import useRevenueCat from "../hooks/useRevenueCat";
 import { getBreathingSessions } from "../utils/breathingManager";
 import { getJournalEntries } from "../utils/journalManager";
 import { getReflections } from "../utils/reflectionManager";
 import { getTaskCompletions } from "../utils/taskManager";
 import { getTimerSessions } from "../utils/timerManager";
 import { getXPHistory } from "../utils/xpManager";
+import PaywallModal from "./PaywallModal";
 
 const { width } = Dimensions.get("window");
 
@@ -28,6 +31,10 @@ const XPJourneyJournal = forwardRef((props, ref) => {
   const [selectedPeriod, setSelectedPeriod] = useState(21);
   const [expandedCard, setExpandedCard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Premium checking
+  const { isPremiumMember } = useRevenueCat();
 
   const todayGlowAnim = useRef(new Animated.Value(1)).current;
   const scrollViewRef = useRef(null);
@@ -502,14 +509,61 @@ const XPJourneyJournal = forwardRef((props, ref) => {
             </Text>
           </View>
         ) : (
-          journeyData.map((dayData, index) => (
-            <React.Fragment key={dayData.dateString}>
-              {dayData.isToday && renderLastWeekNudge(dayData)}
-              {renderJourneyCard(dayData)}
-            </React.Fragment>
-          ))
+          journeyData.map((dayData, index) => {
+            // Show today's card for everyone
+            if (dayData.isToday) {
+              return (
+                <React.Fragment key={dayData.dateString}>
+                  {renderLastWeekNudge(dayData)}
+                  {renderJourneyCard(dayData)}
+                </React.Fragment>
+              );
+            }
+
+            // For non-premium users, show blurred cards with lock overlay
+            if (!isPremiumMember) {
+              return (
+                <View key={dayData.dateString} style={styles.lockedCardContainer}>
+                  {/* Render blurred card content */}
+                  <View style={styles.blurredCard}>
+                    {renderJourneyCard(dayData)}
+                    <BlurView
+                      intensity={20}
+                      style={styles.cardBlurOverlay}
+                      tint="light"
+                    />
+                  </View>
+                  
+                  {/* Lock icon and upgrade prompt */}
+                  <View style={styles.cardLockOverlay}>
+                    <Text style={styles.smallLockIcon}>🔒</Text>
+                    <Text style={styles.smallLockTitle}>Premium History</Text>
+                    <TouchableOpacity
+                      style={styles.smallUpgradeButton}
+                      onPress={() => setShowPaywall(true)}
+                    >
+                      <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            }
+
+            // For premium users, show all cards normally
+            return (
+              <React.Fragment key={dayData.dateString}>
+                {renderJourneyCard(dayData)}
+              </React.Fragment>
+            );
+          })
         )}
       </ScrollView>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+      />
     </View>
   );
 });
@@ -787,6 +841,63 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#121111",
     opacity: 0.6,
+  },
+  lockedCardContainer: {
+    position: "relative",
+    marginBottom: 16,
+  },
+  blurredCard: {
+    position: "relative",
+  },
+  cardBlurOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 20,
+  },
+  cardLockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+  },
+  smallLockIcon: {
+    fontSize: 32,
+    marginBottom: 6,
+  },
+  smallLockTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#121111",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  smallUpgradeButton: {
+    backgroundColor: "#93D5E1",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    shadowColor: "#93D5E1",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  smallUpgradeButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#121111",
+    textAlign: "center",
   },
 });
 

@@ -16,6 +16,8 @@ import {
   View,
 } from "react-native";
 import MindfulBackground from "../components/MindfulBackground";
+import PaywallModal from "../components/PaywallModal";
+import useRevenueCat from "../hooks/useRevenueCat";
 
 const { width } = Dimensions.get("window");
 
@@ -26,7 +28,7 @@ const frequencyOptions = [
   { label: "2x/week", value: "2x/week" },
   { label: "3x/week", value: "3x/week" },
   { label: "Weekly", value: "Weekly" },
-  { label: "Custom", value: "Custom" },
+  // { label: "Custom", value: "Custom" },
 ];
 
 const CreateFocusGoalPage = () => {
@@ -34,11 +36,15 @@ const CreateFocusGoalPage = () => {
   const [description, setDescription] = useState("");
   const [frequency, setFrequency] = useState("Daily");
   const [xpReward, setXpReward] = useState("5");
-  const [enableStreaks, setEnableStreaks] = useState(true);
+  const [enableStreaks, setEnableStreaks] = useState(false);
   const [reflectionPrompt, setReflectionPrompt] = useState(false);
   const [showFrequencyModal, setShowFrequencyModal] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
+
+  // Revenue Cat hook to check premium status
+  const { isPremiumMember } = useRevenueCat();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -55,10 +61,37 @@ const CreateFocusGoalPage = () => {
   const adjustXpReward = (direction) => {
     const currentXp = parseInt(xpReward) || 0;
     if (direction === "up") {
-      setXpReward(Math.min(20, currentXp + 1).toString());
+      setXpReward(Math.min(5, currentXp + 1).toString());
     } else {
       setXpReward(Math.max(1, currentXp - 1).toString());
     }
+  };
+
+  const handleEnableStreaksToggle = (value) => {
+    if (value && !isPremiumMember) {
+      // User is trying to enable streaks but isn't premium
+      Alert.alert(
+        "Track your progress with premium",
+        "Unlock streak tracking, detailed analytics, and comprehensive progress monitoring to stay motivated on your mindfulness journey.",
+        [
+          {
+            text: "Maybe Later",
+            style: "cancel",
+          },
+          {
+            text: "Upgrade Now",
+            style: "default",
+            onPress: () => {
+              setShowPaywall(true);
+            },
+          },
+        ]
+      );
+      return; // Don't enable streaks
+    }
+    
+    // Premium user or disabling streaks - allow the change
+    setEnableStreaks(value);
   };
 
   const handleSaveGoal = async () => {
@@ -321,7 +354,7 @@ const CreateFocusGoalPage = () => {
                     <Text style={styles.xpButtonText}>+</Text>
                   </TouchableOpacity>
                 </View>
-                <Text style={styles.xpHint}>1-20 XP recommended</Text>
+                <Text style={styles.xpHint}>1-5XP recommended</Text>
               </View>
 
               {/* Toggles */}
@@ -332,12 +365,12 @@ const CreateFocusGoalPage = () => {
                   <View style={styles.toggleInfo}>
                     <Text style={styles.toggleLabel}>🔥 Enable Streaks</Text>
                     <Text style={styles.toggleDescription}>
-                      Track consecutive days
+                      Track consecutive days{!isPremiumMember ? " (premium) 🔒" : ""}
                     </Text>
                   </View>
                   <Switch
                     value={enableStreaks}
-                    onValueChange={setEnableStreaks}
+                    onValueChange={handleEnableStreaksToggle}
                     trackColor={{ false: "#E0E0E0", true: "#93D5E1" }}
                     thumbColor={enableStreaks ? "#FFFFFF" : "#FFFFFF"}
                   />
@@ -390,6 +423,12 @@ const CreateFocusGoalPage = () => {
 
         {/* Frequency Modal */}
         {renderFrequencyModal()}
+
+        {/* Paywall Modal */}
+        <PaywallModal
+          visible={showPaywall}
+          onClose={() => setShowPaywall(false)}
+        />
       </SafeAreaView>
     </MindfulBackground>
   );

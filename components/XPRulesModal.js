@@ -18,7 +18,9 @@ import {
   getNextMilestone,
   getRandomQuote,
 } from "../constants/xpActivities";
+import useRevenueCat from "../hooks/useRevenueCat";
 import { getStreak, getXP, getXPHistory } from "../utils/xpManager";
+import PaywallModal from "./PaywallModal";
 import XpGraph from "./XpGraph";
 
 const { width, height } = Dimensions.get("window");
@@ -31,6 +33,10 @@ const XPRulesModal = ({ visible, onClose }) => {
   const [quote, setQuote] = useState("");
   const [nextMilestone, setNextMilestone] = useState(null);
   const [earnedBadges, setEarnedBadges] = useState([]);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Revenue Cat hook to check premium status
+  const { isPremiumMember } = useRevenueCat();
 
   // Animation refs
   const sparkleAnims = useRef([]).current;
@@ -268,7 +274,38 @@ const XPRulesModal = ({ visible, onClose }) => {
             </View>
 
             {/* XP Graph */}
-            <XpGraph xpHistory={xpHistory} />
+            <View style={styles.chartContainer}>
+              {isPremiumMember ? (
+                <XpGraph xpHistory={xpHistory} />
+              ) : (
+                <View style={styles.lockedChartContainer}>
+                  {/* Render blurred chart */}
+                  <View style={styles.blurredChart}>
+                    <XpGraph xpHistory={xpHistory} />
+                    <BlurView
+                      intensity={20}
+                      style={styles.chartBlurOverlay}
+                      tint="light"
+                    />
+                  </View>
+                  
+                  {/* Lock icon and upgrade prompt */}
+                  <View style={styles.lockOverlay}>
+                    <Text style={styles.lockIcon}>🔒</Text>
+                    <Text style={styles.lockTitle}>Premium Analytics</Text>
+                    <Text style={styles.lockDescription}>
+                      Unlock detailed progress tracking and insights
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.upgradeButton}
+                      onPress={() => setShowPaywall(true)}
+                    >
+                      <Text style={styles.upgradeButtonText}>Upgrade Now</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </View>
 
             {/* How to Earn XP - Activity Cards */}
             <View style={styles.activitiesContainer}>
@@ -302,38 +339,102 @@ const XPRulesModal = ({ visible, onClose }) => {
             {nextMilestone && (
               <View style={styles.milestoneContainer}>
                 <Text style={styles.milestoneTitle}>Next Milestone</Text>
-                <View style={styles.milestoneHeader}>
-                  <Text style={styles.milestoneEmoji}>
-                    {nextMilestone.emoji}
-                  </Text>
-                  <View style={styles.milestoneInfo}>
-                    <Text style={styles.milestoneName}>
-                      {nextMilestone.name}
-                    </Text>
-                    <Text style={styles.milestoneProgress}>
-                      {totalXP} / {nextMilestone.requiredXP} XP
-                    </Text>
-                  </View>
-                </View>
+                
+                {isPremiumMember ? (
+                  <>
+                    <View style={styles.milestoneHeader}>
+                      <Text style={styles.milestoneEmoji}>
+                        {nextMilestone.emoji}
+                      </Text>
+                      <View style={styles.milestoneInfo}>
+                        <Text style={styles.milestoneName}>
+                          {nextMilestone.name}
+                        </Text>
+                        <Text style={styles.milestoneProgress}>
+                          {totalXP} / {nextMilestone.requiredXP} XP
+                        </Text>
+                      </View>
+                    </View>
 
-                <View style={styles.progressBarContainer}>
-                  <View style={styles.progressBarBackground}>
-                    <Animated.View
-                      style={[
-                        styles.progressBarFill,
-                        { width: `${getMilestoneProgress()}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.progressPercentage}>
-                    {Math.round(getMilestoneProgress())}%
-                  </Text>
-                </View>
+                    <View style={styles.progressBarContainer}>
+                      <View style={styles.progressBarBackground}>
+                        <Animated.View
+                          style={[
+                            styles.progressBarFill,
+                            { width: `${getMilestoneProgress()}%` },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.progressPercentage}>
+                        {Math.round(getMilestoneProgress())}%
+                      </Text>
+                    </View>
 
-                <Text style={styles.milestoneDescription}>
-                  Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
-                  {nextMilestone.name} {nextMilestone.emoji}
-                </Text>
+                    <Text style={styles.milestoneDescription}>
+                      Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
+                      {nextMilestone.name} {nextMilestone.emoji}
+                    </Text>
+                  </>
+                ) : (
+                  <View style={styles.lockedMilestoneContainer}>
+                    {/* Render blurred milestone content */}
+                    <View style={styles.blurredMilestone}>
+                      <View style={styles.milestoneHeader}>
+                        <Text style={styles.milestoneEmoji}>
+                          {nextMilestone.emoji}
+                        </Text>
+                        <View style={styles.milestoneInfo}>
+                          <Text style={styles.milestoneName}>
+                            {nextMilestone.name}
+                          </Text>
+                          <Text style={styles.milestoneProgress}>
+                            {totalXP} / {nextMilestone.requiredXP} XP
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.progressBarContainer}>
+                        <View style={styles.progressBarBackground}>
+                          <Animated.View
+                            style={[
+                              styles.progressBarFill,
+                              { width: `${getMilestoneProgress()}%` },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.progressPercentage}>
+                          {Math.round(getMilestoneProgress())}%
+                        </Text>
+                      </View>
+
+                      <Text style={styles.milestoneDescription}>
+                        Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
+                        {nextMilestone.name} {nextMilestone.emoji}
+                      </Text>
+
+                      <BlurView
+                        intensity={20}
+                        style={styles.milestoneBlurOverlay}
+                        tint="light"
+                      />
+                    </View>
+                    
+                    {/* Lock icon and upgrade prompt */}
+                    <View style={styles.milestoneLockOverlay}>
+                      <Text style={styles.smallLockIcon}>🔒</Text>
+                      <Text style={styles.smallLockTitle}>Premium Milestones</Text>
+                      {/* <Text style={styles.lockDescription}>
+                        Track your progress and unlock achievements
+                      </Text> */}
+                      <TouchableOpacity
+                        style={styles.smallUpgradeButton}
+                        onPress={() => setShowPaywall(true)}
+                      >
+                        <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
               </View>
             )}
 
@@ -341,14 +442,49 @@ const XPRulesModal = ({ visible, onClose }) => {
             {earnedBadges.length > 0 && (
               <View style={styles.badgesContainer}>
                 <Text style={styles.badgesTitle}>Your Badges</Text>
-                <View style={styles.badgesGrid}>
-                  {earnedBadges.map((badge) => (
-                    <View key={badge.id} style={styles.badgeItem}>
-                      <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
-                      <Text style={styles.badgeName}>{badge.name}</Text>
+                
+                {isPremiumMember ? (
+                  <View style={styles.badgesGrid}>
+                    {earnedBadges.map((badge) => (
+                      <View key={badge.id} style={styles.badgeItem}>
+                        <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
+                        <Text style={styles.badgeName}>{badge.name}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.lockedBadgesContainer}>
+                    {/* Render blurred badges content */}
+                    <View style={styles.blurredBadges}>
+                      <View style={styles.badgesGrid}>
+                        {earnedBadges.map((badge) => (
+                          <View key={badge.id} style={styles.badgeItem}>
+                            <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
+                            <Text style={styles.badgeName}>{badge.name}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      <BlurView
+                        intensity={20}
+                        style={styles.badgesBlurOverlay}
+                        tint="light"
+                      />
                     </View>
-                  ))}
-                </View>
+                    
+                    {/* Lock icon and upgrade prompt */}
+                    <View style={styles.badgesLockOverlay}>
+                      <Text style={styles.smallLockIcon}>🔒</Text>
+                      <Text style={styles.smallLockTitle}>Premium Badges</Text>
+                      <TouchableOpacity
+                        style={styles.smallUpgradeButton}
+                        onPress={() => setShowPaywall(true)}
+                      >
+                        <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
               </View>
             )}
 
@@ -359,6 +495,12 @@ const XPRulesModal = ({ visible, onClose }) => {
           </ScrollView>
         </Animated.View>
       </BlurView>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+      />
     </Modal>
   );
 };
@@ -677,6 +819,159 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     lineHeight: 24,
     letterSpacing: 0.5,
+  },
+  // Premium gate styles
+  chartContainer: {
+    position: "relative",
+  },
+  lockedChartContainer: {
+    position: "relative",
+  },
+  blurredChart: {
+    position: "relative",
+  },
+  chartBlurOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+  },
+  lockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 16,
+  },
+  lockIcon: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  lockTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#121111",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  lockDescription: {
+    fontSize: 14,
+    color: "#121111",
+    opacity: 0.8,
+    textAlign: "center",
+    marginBottom: 20,
+    paddingHorizontal: 40,
+    lineHeight: 20,
+  },
+  upgradeButton: {
+    backgroundColor: "#121111",
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    shadowColor: "#121111",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  upgradeButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  // Milestone premium gate styles
+  lockedMilestoneContainer: {
+    position: "relative",
+  },
+  blurredMilestone: {
+    position: "relative",
+  },
+  milestoneBlurOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 20,
+  },
+  milestoneLockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+  },
+  // Badges premium gate styles
+  lockedBadgesContainer: {
+    position: "relative",
+  },
+  blurredBadges: {
+    position: "relative",
+  },
+  badgesBlurOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+  },
+  badgesLockOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 16,
+  },
+  // Smaller lock overlay elements for milestone and badges
+  smallLockIcon: {
+    fontSize: 32,
+    marginBottom: 6,
+  },
+  smallLockTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#121111",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  smallUpgradeButton: {
+    backgroundColor: "#121111",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    shadowColor: "#121111",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  smallUpgradeButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });
 

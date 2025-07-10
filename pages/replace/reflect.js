@@ -14,7 +14,9 @@ import {
   View,
 } from "react-native";
 import MindfulBackground from "../../components/MindfulBackground";
+import PaywallModal from "../../components/PaywallModal";
 import ReflectionCalendarModal from "../../components/ReflectionCalendarModal";
+import useRevenueCat from "../../hooks/useRevenueCat";
 import {
   getTodaysReflections,
   saveReflection,
@@ -47,6 +49,10 @@ const ReflectPage = () => {
   const [todaysCount, setTodaysCount] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Revenue Cat hook to check premium status
+  const { isPremiumMember } = useRevenueCat();
 
   useEffect(() => {
     loadTodaysReflections();
@@ -112,8 +118,31 @@ const ReflectPage = () => {
   };
 
   const handleCalendarPress = () => {
-    setShowCalendar(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (isPremiumMember) {
+      setShowCalendar(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Alert.alert(
+        "Track your progress with premium",
+        "Unlock detailed progress tracking, calendar view, and comprehensive analytics to monitor your mindfulness journey.",
+        [
+          {
+            text: "Maybe Later",
+            style: "cancel",
+            onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
+          },
+          {
+            text: "Upgrade Now",
+            style: "default",
+            onPress: () => {
+              setShowPaywall(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            },
+          },
+        ]
+      );
+    }
   };
 
   const handleReturn = () => {
@@ -240,6 +269,11 @@ const ReflectPage = () => {
         <ReflectionCalendarModal
           visible={showCalendar}
           onClose={() => setShowCalendar(false)}
+        />
+
+        <PaywallModal
+          visible={showPaywall}
+          onClose={() => setShowPaywall(false)}
         />
       </SafeAreaView>
     </MindfulBackground>
