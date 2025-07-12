@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "doomsapp",
+    "name": "Wake Scroll",
     "slug": "doomsapp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/wakescrolllogo.jpeg",
+    "icon": "./assets/images/wakescrolllogo.png",
     "scheme": "doomsapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/wakescrolllogo.jpeg",
+        "foregroundImage": "./assets/images/wakescrolllogo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -26,14 +26,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/wakescrolllogo.jpeg"
+      "favicon": "./assets/images/wakescrolllogo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/wakescrolllogo.jpeg",
+          "image": "./assets/images/wakescrolllogo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
