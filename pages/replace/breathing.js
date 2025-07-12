@@ -2,12 +2,12 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import BreathingCalendarModal from "../../components/BreathingCalendarModal";
 import MindfulBackground from "../../components/MindfulBackground";
@@ -132,15 +132,11 @@ const BreathingPage = () => {
 
   const completeSession = async () => {
     setIsActive(false);
-    setPhase("inhale");
-    setIsCompleted(true);
-
-    // Update today's session count
-    setTodaysSessions((prev) => prev + 1);
+    setPhase("complete");
 
     try {
-      // Save session
-      await saveBreathingSession(breathCount, currentTechnique);
+      // Save session with actual breath count
+      await saveBreathingSession(totalBreaths);
 
       // Award XP
       await addXP(5);
@@ -255,7 +251,7 @@ const BreathingPage = () => {
         <View style={styles.content}>
           <Text style={styles.title}>🧘 Breathing Exercise</Text>
 
-          {phase !== "ready" && (
+          {phase !== "ready" && phase !== "complete" && (
             <View style={styles.progressContainer}>
               <Text style={styles.progressText}>
                 Breath {breathCount + 1} of {totalBreaths}
@@ -282,7 +278,7 @@ const BreathingPage = () => {
               ]}
             >
               <View style={styles.innerCircle}>
-                {phase !== "ready" && (
+                {phase !== "ready" && phase !== "complete" && (
                   <Text style={styles.timer}>{timeLeft}</Text>
                 )}
               </View>
@@ -300,7 +296,7 @@ const BreathingPage = () => {
             </TouchableOpacity>
           )}
 
-          {phase !== "ready" && (
+          {phase !== "ready" && phase !== "complete" && (
             <TouchableOpacity style={styles.skipButton} onPress={handleReturn}>
               <Text style={styles.skipButtonText}>Skip this session</Text>
             </TouchableOpacity>
