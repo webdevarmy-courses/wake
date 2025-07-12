@@ -1,20 +1,20 @@
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
-  Modal,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  getCalendarData,
-  getMonthlyStats,
-  getReflectionsByDate,
-  getWeeklyReflectionData,
+    getCalendarData,
+    getMonthlyStats,
+    getReflectionsByDate,
+    getWeeklyReflectionData,
 } from "../utils/reflectionManager";
 
 const { width } = Dimensions.get("window");

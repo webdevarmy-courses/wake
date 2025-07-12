@@ -69,25 +69,8 @@ const CreateFocusGoalPage = () => {
 
   const handleEnableStreaksToggle = (value) => {
     if (value && !isPremiumMember) {
-      // User is trying to enable streaks but isn't premium
-      Alert.alert(
-        "Track your progress with premium",
-        "Unlock streak tracking, detailed analytics, and comprehensive progress monitoring to stay motivated on your mindfulness journey.",
-        [
-          {
-            text: "Maybe Later",
-            style: "cancel",
-          },
-          {
-            text: "Upgrade Now",
-            style: "default",
-            onPress: () => {
-              setShowPaywall(true);
-            },
-          },
-        ]
-      );
-      return; // Don't enable streaks
+      setShowPaywall(true);
+      return;
     }
     
     // Premium user or disabling streaks - allow the change

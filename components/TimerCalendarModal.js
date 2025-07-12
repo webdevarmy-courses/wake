@@ -1,20 +1,20 @@
 import * as Haptics from "expo-haptics";
 import React, { useEffect, useState } from "react";
 import {
-  Dimensions,
-  Modal,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  getMonthlyTimerStats,
-  getTimerCalendarData,
-  getTimerSessionsByDate,
-  getWeeklyTimerData,
+    getMonthlyTimerStats,
+    getTimerCalendarData,
+    getTimerSessionsByDate,
+    getWeeklyTimerData,
 } from "../utils/timerManager";
 
 const { width } = Dimensions.get("window");

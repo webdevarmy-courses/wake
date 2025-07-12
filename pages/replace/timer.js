@@ -31,6 +31,7 @@ const TimerPage = () => {
   const [showPaywall, setShowPaywall] = useState(false);
   const [appStateVisible, setAppStateVisible] = useState(AppState.currentState);
   const [todaysSessionCount, setTodaysSessionCount] = useState(0);
+  const [calendarClickDisabled, setCalendarClickDisabled] = useState(false);
 
   // Revenue Cat hook to check premium status
   const { isPremiumMember } = useRevenueCat();
@@ -234,30 +235,17 @@ const TimerPage = () => {
   };
 
   const handleCalendarPress = () => {
+    if (calendarClickDisabled) return;
+    
+    setCalendarClickDisabled(true);
+    setTimeout(() => setCalendarClickDisabled(false), 1000); // 1 second debounce
+    
     if (isPremiumMember) {
       setShowCalendar(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      Alert.alert(
-        "Track your progress with premium",
-        "Unlock detailed progress tracking, calendar view, and comprehensive analytics to monitor your mindfulness journey.",
-        [
-          {
-            text: "Maybe Later",
-            style: "cancel",
-            onPress: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
-          },
-          {
-            text: "Upgrade Now",
-            style: "default",
-            onPress: () => {
-              setShowPaywall(true);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            },
-          },
-        ]
-      );
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      setShowPaywall(true);
     }
   };
 

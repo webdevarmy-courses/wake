@@ -413,18 +413,7 @@ export default function NotificationsPage() {
   const handleSleepModeToggle = async () => {
     // Check if user is premium
     if (!isPremiumMember) {
-      Alert.alert(
-        "Sleep Mode requires premium",
-        "Upgrade to premium to automatically pause notifications during your sleep hours and maintain healthier digital habits.",
-        [
-          { text: "Maybe Later", style: "cancel" },
-          { 
-            text: "Upgrade Now", 
-            style: "default",
-            onPress: () => setShowPaywall(true)
-          }
-        ]
-      );
+      setShowPaywall(true);
       return;
     }
 

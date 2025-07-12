@@ -41,6 +41,7 @@ const TaskDetailPage = () => {
   const [showPaywall, setShowPaywall] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [streak, setStreak] = useState({ currentStreak: 0, highestStreak: 0 });
+  const [calendarClickDisabled, setCalendarClickDisabled] = useState(false);
 
   // Revenue Cat hook to check premium status
   const { isPremiumMember } = useRevenueCat();
@@ -111,7 +112,7 @@ const TaskDetailPage = () => {
           [
             {
               text: "View Progress",
-              onPress: handleCalendarPress,
+              onPress: handleViewProgress,
               style: "default",
             },
             {
@@ -149,7 +150,7 @@ const TaskDetailPage = () => {
       [
         {
           text: "View Progress",
-          onPress: handleCalendarPress,
+          onPress: handleViewProgress,
           style: "default",
         },
         {
@@ -184,26 +185,29 @@ const TaskDetailPage = () => {
   };
 
   const handleCalendarPress = () => {
+    if (calendarClickDisabled) return;
+    
+    setCalendarClickDisabled(true);
+    setTimeout(() => setCalendarClickDisabled(false), 1000); // 1 second debounce
+    
     if (isPremiumMember) {
       setShowCalendar(true);
     } else {
-      Alert.alert(
-        "Track your progress with premium",
-        "Unlock detailed progress tracking, calendar view, and comprehensive analytics to monitor your mindfulness journey.",
-        [
-          {
-            text: "Maybe Later",
-            style: "cancel",
-          },
-          {
-            text: "Upgrade Now",
-            style: "default",
-            onPress: () => {
-              setShowPaywall(true);
-            },
-          },
-        ]
-      );
+      setShowPaywall(true);
+    }
+  };
+
+  const handleViewProgress = () => {
+    // For alert dialogs, use a shorter debounce to allow quick access after task completion
+    if (calendarClickDisabled) return;
+    
+    setCalendarClickDisabled(true);
+    setTimeout(() => setCalendarClickDisabled(false), 500); // Shorter debounce for alerts
+    
+    if (isPremiumMember) {
+      setShowCalendar(true);
+    } else {
+      setShowPaywall(true);
     }
   };
 

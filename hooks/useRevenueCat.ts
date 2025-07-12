@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Platform } from "react-native";
 import Purchases, { CustomerInfo, PurchasesOffering } from 'react-native-purchases';
 
@@ -16,21 +16,35 @@ function useRevenueCat(){
     const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
+    const debounceTimeoutRef = useRef<number | null>(null);
 
-    const isPremiumMember = customerInfo?.activeSubscriptions.includes(typesOfMembership.weekly) || customerInfo?.activeSubscriptions.includes(typesOfMembership.yearly);
-    // const isPremiumMember = true;
+    // Use useMemo to stabilize the premium status check
+    const isPremiumMember = useMemo(() => {
+        if (!customerInfo || !isInitialized) return false;
+        
+        const hasActiveSubscription = customerInfo.activeSubscriptions.includes(typesOfMembership.weekly) || 
+                                    customerInfo.activeSubscriptions.includes(typesOfMembership.yearly);
+        
+        // Also check entitlements as a backup
+        const hasEntitlements = customerInfo.entitlements?.active?.PREMIUM !== undefined;
+        
+        const result = hasActiveSubscription || hasEntitlements;
+        console.log('[RevenueCat] Premium status check:', {
+            hasActiveSubscription,
+            hasEntitlements,
+            result,
+            activeSubscriptions: customerInfo.activeSubscriptions,
+            entitlements: customerInfo.entitlements?.active
+        });
+        
+        return result;
+    }, [customerInfo, isInitialized]);
 
     useEffect(()=>{
         const fetchData = async ()=>{
             try {
-                // Check if we're in a native environment (not web or Node.js)
-                // if (Platform.OS === 'web' || !Constants.executionEnvironment || Constants.executionEnvironment === 'storeClient') {
-                //     console.warn('RevenueCat is not supported in this environment');
-                //     return;
-                // }
-
-                // Purchases.setDebugLogsEnabled(true);
-
+                console.log('[RevenueCat] Initializing...');
+                
                 if(Platform.OS==='android'){
                     await Purchases.configure({apiKey: APIKeys.google})
                 }else{
@@ -40,33 +54,52 @@ function useRevenueCat(){
                 const offerings = await Purchases.getOfferings();
                 const customerInfo = await Purchases.getCustomerInfo();
 
+                console.log('[RevenueCat] Customer info:', {
+                    activeSubscriptions: customerInfo.activeSubscriptions,
+                    entitlements: customerInfo.entitlements?.active
+                });
+
                 setCurrentOffering(offerings.current)
                 setCustomerInfo(customerInfo);
                 setIsInitialized(true);
             } catch (error) {
                 console.error('Error initializing RevenueCat:', error);
+                setIsInitialized(true); // Set to true even on error to prevent infinite loading
             }
         }
 
         fetchData();
     },[])
 
-
     useEffect(()=>{
         if (!isInitialized) return;
 
         const customerInfoUpdated = async (purchaserInfo : CustomerInfo)=>{
-            setCustomerInfo(purchaserInfo);
+            console.log('[RevenueCat] Customer info updated:', {
+                activeSubscriptions: purchaserInfo.activeSubscriptions,
+                entitlements: purchaserInfo.entitlements?.active
+            });
+            
+            // Debounce rapid updates to prevent UI flickering
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
+            
+            debounceTimeoutRef.current = setTimeout(() => {
+                setCustomerInfo(purchaserInfo);
+            }, 100) as any; // Type assertion for React Native timeout
         }
 
-        const removeListener = Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
+        Purchases.addCustomerInfoUpdateListener(customerInfoUpdated);
         return () => {
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
             Purchases.removeCustomerInfoUpdateListener(customerInfoUpdated);
         };
     },[isInitialized]);
 
     return {currentOffering, customerInfo, isPremiumMember, isInitialized}
-
 }
 
 export default useRevenueCat;
