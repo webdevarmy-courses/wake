@@ -17,8 +17,8 @@ function useRevenueCat(){
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
 
-    // const isPremiumMember = customerInfo?.activeSubscriptions.includes(typesOfMembership.weekly) || customerInfo?.activeSubscriptions.includes(typesOfMembership.yearly);
-    const isPremiumMember = true;
+    const isPremiumMember = customerInfo?.activeSubscriptions.includes(typesOfMembership.weekly) || customerInfo?.activeSubscriptions.includes(typesOfMembership.yearly);
+    // const isPremiumMember = true;
 
     useEffect(()=>{
         const fetchData = async ()=>{
