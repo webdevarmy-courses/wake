@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from "expo-linear-gradient";
+import * as Linking from 'expo-linking';
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -22,7 +23,7 @@ import AddCustomReminderModal from "@/components/AddCustomReminderModal";
 import MindfulBackground from "@/components/MindfulBackground";
 import PaywallModal from "@/components/PaywallModal";
 import useRevenueCat from "@/hooks/useRevenueCat";
-import { deleteCustomReminder, getNotificationsEnabled, getScrollReminderFrequency, handleSleepModeChange, setNotificationsEnabled, setScrollReminderFrequency } from "@/utils/notificationManager";
+import { checkNotificationPermissions, deleteCustomReminder, getNotificationsEnabled, getScrollReminderFrequency, handleSleepModeChange, monitorNotificationPermissions, setNotificationsEnabled, setScrollReminderFrequency } from "@/utils/notificationManager";
 
 const { width } = Dimensions.get("window");
 const SECTION_WIDTH = width * 0.9;
@@ -73,12 +74,39 @@ export default function NotificationsPage() {
   const [activeTimePickerType, setActiveTimePickerType] = useState<'start' | 'end' | null>(null);
   const slideUpAnim = useRef(new Animated.Value(0)).current;
   const [showPaywall, setShowPaywall] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState("unknown");
 
   // Premium checking
   const { isPremiumMember } = useRevenueCat();
 
   useEffect(() => {
     loadInitialState();
+    checkPermissions();
+
+    // Set up permission monitoring
+    const subscription = monitorNotificationPermissions((newStatus) => {
+      setPermissionStatus(newStatus);
+      
+      // Show alert when permissions are revoked
+      if (newStatus === 'denied') {
+        Alert.alert(
+          "Notifications Disabled",
+          "You've disabled notifications for Wake Scroll. To continue receiving mindful reminders, please enable notifications in your device settings.",
+          [
+            { text: "Not Now", style: "cancel" },
+            { 
+              text: "Open Settings",
+              onPress: handleOpenSettings
+            }
+          ]
+        );
+      }
+    });
+
+    // Cleanup subscription
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   const loadInitialState = async () => {
@@ -101,6 +129,11 @@ export default function NotificationsPage() {
     if (enabled) {
       loadReminders();
     }
+  };
+
+  const checkPermissions = async () => {
+    const status = await checkNotificationPermissions();
+    setPermissionStatus(status);
   };
 
   const handleFrequencyChange = async (minutes: number) => {
@@ -528,6 +561,81 @@ export default function NotificationsPage() {
     );
   };
 
+  const handleOpenSettings = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('app-settings:');
+    } else {
+      Linking.openSettings();
+    }
+  };
+
+  const renderNotificationPermissionPrompt = () => {
+    if (permissionStatus === "denied") {
+      return (
+        <View style={styles.permissionContainer}>
+          <LinearGradient
+            colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.98)']}
+            style={styles.permissionPrompt}
+          >
+            {/* Illustration/Icon Section */}
+            <View style={styles.permissionIconContainer}>
+              <View style={styles.bellIconWrapper}>
+                <Text style={styles.bellIcon}>🔔</Text>
+                <View style={styles.notificationDot} />
+              </View>
+              <View style={styles.sparkleContainer}>
+                <Text style={styles.sparkle}>✨</Text>
+              </View>
+              <View style={styles.sparkleContainer2}>
+                <Text style={styles.sparkle}>✨</Text>
+              </View>
+            </View>
+
+            {/* Content Section */}
+            <Text style={styles.permissionTitle}>Stay Mindful with Notifications</Text>
+            <Text style={styles.permissionDescription}>
+              Enable notifications to receive gentle reminders throughout your day. 
+              We'll help you maintain mindfulness and build positive habits.
+            </Text>
+
+            {/* Benefits Section */}
+            <View style={styles.benefitsList}>
+              <View style={styles.benefitItem}>
+                <Text style={styles.benefitIcon}>⏰</Text>
+                <Text style={styles.benefitText}>Timely mindfulness reminders</Text>
+              </View>
+              <View style={styles.benefitItem}>
+                <Text style={styles.benefitIcon}>🎯</Text>
+                <Text style={styles.benefitText}>Track your daily progress</Text>
+              </View>
+              <View style={styles.benefitItem}>
+                <Text style={styles.benefitIcon}>🌟</Text>
+                <Text style={styles.benefitText}>Achieve your wellness goals</Text>
+              </View>
+            </View>
+
+            {/* Action Button */}
+            <TouchableOpacity
+              style={styles.permissionButton}
+              onPress={handleOpenSettings}
+            >
+              <Text style={styles.permissionButtonText}>Enable Notifications</Text>
+            </TouchableOpacity>
+            
+            {/* Skip Option */}
+            <TouchableOpacity
+              style={styles.skipButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.skipButtonText}>Maybe Later</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <MindfulBackground style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -714,6 +822,7 @@ export default function NotificationsPage() {
           onClose={() => setShowPaywall(false)}
         />
       </SafeAreaView>
+      {renderNotificationPermissionPrompt()}
     </MindfulBackground>
   );
 }
@@ -1234,5 +1343,131 @@ const styles = StyleSheet.create({
   iosTimePicker: {
     height: 200,
     backgroundColor: '#FFFFFF',
+  },
+  permissionContainer: {
+    marginHorizontal: 20,
+    marginVertical: 20,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  permissionPrompt: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  permissionIconContainer: {
+    height: 120,
+    width: 120,
+    marginBottom: 24,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bellIconWrapper: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 30,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  bellIcon: {
+    fontSize: 40,
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    width: 12,
+    height: 12,
+    backgroundColor: '#FF3B30',
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  sparkleContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 0,
+    transform: [{ rotate: '15deg' }],
+  },
+  sparkleContainer2: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    transform: [{ rotate: '-15deg' }],
+  },
+  sparkle: {
+    fontSize: 24,
+  },
+  permissionTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#121111",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  permissionDescription: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 24,
+    paddingHorizontal: 10,
+  },
+  benefitsList: {
+    width: '100%',
+    marginBottom: 24,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginVertical: 4,
+    borderRadius: 12,
+  },
+  benefitIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  benefitText: {
+    fontSize: 15,
+    color: "#444",
+    flex: 1,
+  },
+  permissionButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    width: '100%',
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  permissionButtonText: {
+    color: "white",
+    fontSize: 17,
+    fontWeight: "600",
+    textAlign: 'center',
+  },
+  skipButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+  },
+  skipButtonText: {
+    color: "#666",
+    fontSize: 15,
+    fontWeight: "500",
   },
 }); 

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
+import { AppState, Platform } from "react-native";
 import { getRandomNotification } from "../constants/notificationContent";
 
 // Configure notifications
@@ -30,6 +30,7 @@ const DEFAULT_SCROLL_FREQUENCY = 45; // 45 minutes
 
 // Constants for notification toggle
 const NOTIFICATIONS_ENABLED_KEY = "notificationsEnabled";
+const NOTIFICATIONS_PERMISSION_STATUS_KEY = "notificationsPermissionStatus";
 
 // Sleep Mode AsyncStorage keys
 const SLEEP_MODE_ENABLED = "sleepModeEnabled";
@@ -232,9 +233,15 @@ export const initializeNotifications = async () => {
       JSON.stringify(settings, null, 2)
     );
 
+    // Store the permission status
+    await AsyncStorage.setItem(NOTIFICATIONS_PERMISSION_STATUS_KEY, settings.status);
+
     if (settings.status !== "granted") {
       console.log("🔔 Requesting notification permissions...");
       const { status } = await Notifications.requestPermissionsAsync();
+      
+      // Store the updated permission status
+      await AsyncStorage.setItem(NOTIFICATIONS_PERMISSION_STATUS_KEY, status);
 
       if (status !== "granted") {
         console.log("❌ Notification permissions denied");
@@ -671,4 +678,62 @@ export const handleSleepModeChange = async (enabled, startTime, endTime) => {
     console.error("❌ Error handling sleep mode change:", error);
     return false;
   }
+};
+
+export const checkNotificationPermissions = async () => {
+  try {
+    const settings = await Notifications.getPermissionsAsync();
+    await AsyncStorage.setItem(NOTIFICATIONS_PERMISSION_STATUS_KEY, settings.status);
+    return settings.status;
+  } catch (error) {
+    console.error("Error checking notification permissions:", error);
+    return "denied";
+  }
+};
+
+export const getNotificationPermissionStatus = async () => {
+  try {
+    const status = await AsyncStorage.getItem(NOTIFICATIONS_PERMISSION_STATUS_KEY);
+    return status || "unknown";
+  } catch (error) {
+    console.error("Error getting notification permission status:", error);
+    return "unknown";
+  }
+};
+
+type NotificationPermissionStatus = 'granted' | 'denied' | 'undetermined' | 'unknown';
+
+export const monitorNotificationPermissions = (
+  callback: (status: NotificationPermissionStatus) => void
+) => {
+  // Handle app state changes
+  const subscription = AppState.addEventListener('change', async (nextAppState) => {
+    // Check permissions when app comes to foreground
+    if (nextAppState === 'active') {
+      const currentStatus = await checkNotificationPermissions();
+      const previousStatus = await getNotificationPermissionStatus();
+      
+      console.log('Permission Status Check:', {
+        previous: previousStatus,
+        current: currentStatus
+      });
+
+      // If status changed, update storage and notify callback
+      if (currentStatus !== previousStatus) {
+        await AsyncStorage.setItem(NOTIFICATIONS_PERMISSION_STATUS_KEY, currentStatus);
+        
+        // If permissions were revoked, disable notifications in app
+        if (currentStatus === 'denied') {
+          await setNotificationsEnabled(false);
+        }
+        
+        // Notify callback if provided
+        if (callback) {
+          callback(currentStatus);
+        }
+      }
+    }
+  });
+
+  return subscription; // Return subscription for cleanup
 };
