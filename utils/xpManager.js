@@ -56,19 +56,31 @@ export const addXP = async (amount) => {
     if (lastDate !== today) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = yesterday.toDateString();
 
-      if (lastDate === yesterday.toDateString()) {
+      if (lastDate === yesterdayString) {
         // Consecutive day - increment streak
-        streak = await getStreak();
-        streak += 1;
+        const currentStreak = await getStreak();
+        streak = currentStreak + 1;
         await AsyncStorage.setItem(STREAK_KEY, streak.toString());
-      } else if (!lastDate || lastDate !== today) {
-        // First time or broken streak - reset to 1
+        console.log("[XP Manager] Incremented streak to:", streak);
+      } else if (!lastDate) {
+        // First time ever - start streak at 1
         streak = 1;
         await AsyncStorage.setItem(STREAK_KEY, "1");
+        console.log("[XP Manager] Started new streak at 1");
+      } else {
+        // Broken streak - reset to 1
+        streak = 1;
+        await AsyncStorage.setItem(STREAK_KEY, "1");
+        console.log("[XP Manager] Broke streak, reset to 1");
       }
 
       await AsyncStorage.setItem(LAST_INTERACTION_KEY, today);
+    } else {
+      // Same day - just maintain current streak
+      streak = await getStreak();
+      console.log("[XP Manager] Same day, maintaining streak:", streak);
     }
 
     // Also save to XP history for daily tracking
@@ -156,6 +168,61 @@ export const saveXPHistory = async (date, xpGained) => {
     console.log("[XP Manager] Updated XP history:", history);
   } catch (error) {
     console.error("Error saving XP history:", error);
+  }
+};
+
+export const validateAndFixStreak = async () => {
+  try {
+    console.log("[XP Manager] Validating streak...");
+    
+    // Get XP history to calculate actual streak
+    const history = await getXPHistory();
+    if (history.length === 0) {
+      await AsyncStorage.setItem(STREAK_KEY, "0");
+      await AsyncStorage.removeItem(LAST_INTERACTION_KEY);
+      return 0;
+    }
+
+    // Sort history by date (newest first)
+    history.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    let actualStreak = 0;
+    const today = new Date();
+    
+    // Check consecutive days starting from today
+    for (let i = 0; i < history.length; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const checkDateString = checkDate.toDateString();
+      
+      // Find entry for this date
+      const dayEntry = history.find(entry => entry.date === checkDateString);
+      
+      if (dayEntry && dayEntry.xp > 0) {
+        actualStreak++;
+      } else {
+        // No XP for this day, break the streak
+        break;
+      }
+    }
+
+    // Update stored streak if different
+    const storedStreak = await getStreak();
+    if (storedStreak !== actualStreak) {
+      console.log("[XP Manager] Fixing streak from", storedStreak, "to", actualStreak);
+      await AsyncStorage.setItem(STREAK_KEY, actualStreak.toString());
+      
+      // Update last interaction date to today if we have XP today
+      const todayEntry = history.find(entry => entry.date === today.toDateString());
+      if (todayEntry && todayEntry.xp > 0) {
+        await AsyncStorage.setItem(LAST_INTERACTION_KEY, today.toDateString());
+      }
+    }
+
+    return actualStreak;
+  } catch (error) {
+    console.error("Error validating streak:", error);
+    return 0;
   }
 };
 

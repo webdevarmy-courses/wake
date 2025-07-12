@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { getStreak, getTodaysXP } from "../utils/xpManager";
+import { getTodaysXP, validateAndFixStreak } from "../utils/xpManager";
 
 const XPJar = ({ currentXP, onPress }) => {
   const [animatedValue] = useState(new Animated.Value(0));
@@ -22,21 +22,31 @@ const XPJar = ({ currentXP, onPress }) => {
     if (currentXP !== undefined && currentXP !== null) {
       setDisplayXP(currentXP);
       animateJar(currentXP);
+      // Also refresh streak when XP changes
+      loadStreak();
     }
   }, [currentXP]);
+
+  const loadStreak = async () => {
+    try {
+      // Validate and fix streak to ensure accuracy
+      const validatedStreak = await validateAndFixStreak();
+      setStreak(validatedStreak);
+    } catch (error) {
+      console.error("Error loading streak:", error);
+    }
+  };
 
   const loadData = async () => {
     try {
       const todaysXP = await getTodaysXP();
-      const storedStreak = await getStreak();
+      await loadStreak();
 
       // Only set if currentXP prop is not provided or is 0
       if (currentXP === undefined || currentXP === null) {
         setDisplayXP(todaysXP);
         animateJar(todaysXP);
       }
-
-      setStreak(storedStreak);
     } catch (error) {
       console.error("Error loading XP data:", error);
     }
