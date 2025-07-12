@@ -82,7 +82,7 @@ const TaskDetailPage = () => {
   const handleComplete = async () => {
     try {
       // Save completion
-      await saveTaskCompletion(task);
+      await saveTaskCompletion(task, reflection);
 
       // Add XP
       await addXP(task.xp);
@@ -226,7 +226,7 @@ const TaskDetailPage = () => {
       );
 
       // Save task completion with reflection
-      await saveTaskCompletion(task);
+      await saveTaskCompletion(task, reflection);
       console.log("[TaskDetail] Task completion saved");
 
       // Also add XP to the global system
