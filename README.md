@@ -1,1259 +1,444 @@
-Here is your updated `README.md` for **Page 1 (Mindful Page)** along with a **complete visual theme guide** based on the references you shared.
+
+
+# Onboarding Instructions for Wake Scroll App
+
+This document contains detailed step-by-step specifications to build the next onboarding pages for the **Wake Scroll app**.
+Follow these instructions **exactly** when creating the components.
 
 ---
 
-```md
-# 🧘 Mindful Page — Page 1
+## General Guidelines
 
-The **Mindful Page** is the default landing screen of the app. It acts as the gentle intervention point to break doomscrolling patterns. Every element here is crafted to offer calmness, clarity, and meaningful redirection.
+* **Framework**: Use `expo-router` for navigation.
+* **Layout**:
 
----
+  * Wrap screens with `SafeAreaView`.
+  * Use `ScrollView` if vertical content exceeds screen height.
+  * Keep background theme consistent with lavender → pale yellow gradient.
+* **Typography**:
 
-## 🎨 Visual Theme Guidelines (Inspired by Provided Design)
+  * Headlines: Serif font, bold, large size.
+  * Subtext and options: Sans-serif, medium size.
+* **Buttons**:
 
-### 📐 Layout
+  * Lavender background, bold white text, rounded corners.
+  * Full width with padding.
+* **Navigation**:
 
-- All major elements are **vertically stacked** with breathable margins.
-- Use **rounded corners (24–32px)** for all cards and buttons.
-- The screen feels like a **magazine poster** — bold, stylized fonts, dynamic contrast between soft colors and dark type.
-
----
-
-### 🎨 Color Palette
-
-| Usage        | Color         | Hex       |
-| ------------ | ------------- | --------- |
-| Background 1 | Lemon Chiffon | `#F3FBCB` |
-| Background 2 | Lavender Pink | `#F4D8FE` |
-| Accent Blue  | Ice Blue      | `#93D5E1` |
-| Text Primary | Deep Charcoal | `#121111` |
-| XP Sparkle   | Golden Yellow | `#FFE37D` |
-
-- Gradient Ideas:
-  - **Lavender → Lemon Chiffon** as background wash.
-  - XP Jar: `#93D5E1` with shimmer.
+  * Forward navigation is **automatic** after option selection.
+  * Provide a **Back button** (chevron icon) on question pages to go to previous step.
 
 ---
 
-### 🖋 Typography
+## Progress Bar
 
-**Primary Font**: [Silver Grown (or similar retro-futuristic condensed typeface)]
+* Display at the **top** of each question page.
+* Style: a thin line filled progressively.
+* Should not display numbers, only a subtle brightness/fill effect.
+* Example:
 
-- **Headers**: Bold, uppercase, tracking-wide
-- **Body**: Light, clean, spaced-out
-- **Font Color**: Always use `#121111` or 90% black on pastel backgrounds.
-
-Example usage:
-```
-
-ELEVATE YOUR MIND WITH US
-"Take a breath. What are you really looking for right now?"
-
-````
+  * Grey background line.
+  * Animated lavender foreground line showing completion percentage.
 
 ---
 
-## 🧠 Page Goal
+## Question Pages
 
-To gently nudge users away from doomscrolling by offering alternative calming actions and rewarding them with XP, all while making the experience feel visually modern, vibrant, and gamified — not preachy.
+Each question is **one page**.
+Once the user taps an option, automatically navigate to the next question (no Continue button).
 
----
+### Question 1
 
-## 🧱 Components & Layout (JavaScript - Cursor AI)
+**Text:** "How old are you?"
+**Options:**
 
-### 1. 🧘 **Mindful Prompt (Top)**
+1. 13 to 17
+2. 18 to 24
+3. 25 to 34
+4. 35 to 44
+5. 45 to 54
+6. 55 or above
 
-| Prop     | Value               |
-|----------|---------------------|
-| Type     | Daily rotating prompt |
-| Display  | Centered text (2 lines max) |
-| Style    | Semi-bold, uppercase, 120% line-height |
-| Example  | "Take a breath. What are you really looking for right now?" |
+### Question 2
 
-> Load from `constants/quotes.js` → rotate daily via date mod logic.
+**Text:** "What’s your gender?"
+**Options:**
 
----
+1. Male
+2. Female
+3. Other
+4. Prefer not to answer
 
-### 2. ✋ **Catch Me Scrolling Button**
+### Question 3
 
-| Attribute     | Details |
-|---------------|---------|
-| Size          | 180px x 180px circular |
-| Placement     | Centered mid-page |
-| Animation     | Glow ring and XP sparkle on press |
-| Interaction   | On tap:
- - Adds `+1 XP`
- - Triggers haptic feedback
- - Animates XP Jar shine
+**Text:** "How would you describe your current life?"
+**Options:**
 
-> Call `addXP(1)` on tap and persist via AsyncStorage.
+1. I'm satisfied with my life now
+2. I'm alright and want to self-improve
+3. I'm doing okay, not good or bad
+4. I’m often sad and rarely happy
+5. I’m at the lowest and need help
 
----
+### Question 4
 
-### 3. 🔄 **Replace Scrolling Section (Cards)**
+**Text:** "What is the biggest reason you want to reset your life?"
+**Options:**
 
-#### 🔧 Scrollable Cards List
-
-| Card | Title               | Icon | Navigation Target         |
-|------|---------------------|------|---------------------------|
-| 1    | 5-min Breathing     | 🧘   | `/replace/breathing`      |
-| 2    | Screen-Free Timer   | 📵   | `/replace/timer`          |
-| 3    | Quick Journal Prompt| 🧠   | `/replace/journal`        |
-| 4    | Reflect Card        | 📓   | `/replace/reflect`        |
-
-- Horizontal scroll with **snap-to-center** UX
-- Card Style:
-  - 140px width
-  - Rounded corners
-  - Gradient backgrounds (`#F3FBCB`, `#F4D8FE`, `#93D5E1`)
-  - Bold headers + emoji icon
-
-> Each card opens a full sub-page experience.
+1. Lack motivation and discipline
+2. Improve my study and career
+3. Quit doomscrolling and improve life
+4. Build muscle and get fit
+5. Overcome major life setbacks
+6. Quit porn addictions
 
 ---
 
-### 4. 💠 **XP Jar (Bottom Component)**
+## Progress Glimpse Page
 
-| Prop     | Value |
-|----------|-------|
-| Type     | Semi-circle liquid jar animation |
-| Visual   | Animated fluid fill + sparkle on XP gain |
-| Modal    | On tap:
- - Show XP Rules
- - 30-day XP bar chart
- - Streak info (e.g. "3 days in a row!")
+* **Layout**:
 
----
-
-## 🧮 Global XP State Setup
-
-Define a **global XP system**.
-
-**In `/utils/xpManager.js`:**
-
-```js
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-let xp = 0;
-
-export const getXP = async () => {
-  const stored = await AsyncStorage.getItem('xp');
-  xp = stored ? parseInt(stored) : 0;
-  return xp;
-};
-
-export const addXP = async (amount) => {
-  xp += amount;
-  await AsyncStorage.setItem('xp', xp.toString());
-};
-
-export const resetXP = async () => {
-  xp = 0;
-  await AsyncStorage.setItem('xp', '0');
-};
-````
-
----
-
-## 📁 Suggested File Structure
-
-```
-/pages/MindfulPage.js         ← main screen
-/pages/replace/breathing.js   ← sub-pages
-/pages/replace/timer.js
-/pages/replace/journal.js
-/pages/replace/reflect.js
-
-/components/MindfulPrompt.js
-/components/CatchScrollButton.js
-/components/ReplaceScrollCards.js
-/components/XPJar.js
-/components/XPRulesModal.js
-
-/utils/xpManager.js
-/constants/quotes.js
-/assets/fonts/SilverGrown.ttf
-```
-
----
-
-## 📱 Motion & Interaction
-
-| Element      | Motion                   |
-| ------------ | ------------------------ |
-| Catch Me Btn | Glow pulse + XP spark    |
-| XP Jar       | Liquid fill + shimmer    |
-| Cards        | Snap scroll, fade-in     |
-| Modal        | Smooth rise + glass blur |
-
----
-
-# 📘 Focus Page – Ritual Builder
-
-This file defines the UI and UX design spec for the **Focus Page** of the app, aimed at helping users build mindful, energizing daily rituals while earning XP. This serves as a guide for Cursor AI to implement the structure.
-
----
-
-## 🔹 1. Header Section
-
-### Title:
-
-```
-Build a Focus Ritual
-```
-
-### Subtitle:
-
-```
-Pick small intentional habits to level up your day
-```
-
-### Notes:
-
-- Fixed header
-- Calm, inspiring font
-- Background can remain translucent or adopt soft pastel
-
----
-
-## 🔹 2. Goals Section (User-Created Tasks)
-
-### Block Title:
-
-```
-Your Focus Goals
-```
-
-### Add Task Card:
-
-- A rounded container with plus symbol and text:
+  * A thick rounded box in the center.
+  * Inside, show a **progress tracking preview** with placeholder graphics.
+* **Text above box:** "Your progress will be tracked here."
+* **Below box:**
 
   ```
-  ➕ Add a Personal Focus Goal
+  The average person wastes 2 hours 31 minutes daily on their phone.  
+  With Wake Scroll, users report up to 345% improvements in focus, energy, and well-being.  
   ```
-
-- Tap → navigates to a form or full screen:
-
-  - Enter goal name
-  - Description (optional)
-  - XP to assign
-  - Frequency (daily/weekly/etc)
+* **Button:** Continue → goes to next question.
 
 ---
 
-## 🔹 3. Pre-Built Tasks Section
+## Additional Questions
 
-### Title:
+### Question 5
 
-```
-Try These Today
-```
+**Text:** "When was the last time you were proud of yourself?"
+**Options:**
 
-### General Notes:
+1. Just today
+2. Few days ago
+3. Few weeks ago
+4. Few months ago
+5. Too long, I can’t remember
 
-- Stack landscape cards vertically with scroll
-- Total: 10 pre-built cards
+### Question 6
 
-### ✨ Pre-Built Task Card – Layout Spec
+**Text:** "How long do you use your phone daily?"
+**UI Element:**
 
-( find images at /assets/preBuiltTasks)
-| Element | Description |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Image** | Top 40% of card height. Rounded top corners. Illustrated, 9:6 landscape (preferred resolution: 900x600 or 1200x800) |
-| **Task Name** | Bold and clean (e.g., "Read for 30 Minutes") |
-| **Micro-description** | 1-liner benefit like "Sharpen focus with a mindful read" |
-| **Recommended Frequency** | Small pastel pill: "3x/week" or "Daily" |
-| **XP Tag** | 💫 "+5 XP" badge in top right corner |
-| **Action Button** | CTA: "Do Now" → opens Dedicated Page |
+* Modern **slider** or **circular dial** selector.
+* Range: 1 hour → 12+ hours.
+* Selected value shown dynamically.
 
-#### Interaction:
+### Question 7
 
-- Card has tilt-on-hover animation
-- Soft glow on XP badge if completed today
+**Text:** "How much is 1 hour of your time worth?"
+**UI Element:**
 
----
+* Scrollable number selector.
+* Range: \$10 → \$100+.
 
-## 📄 Dedicated Task Page (After Tapping Card)
+### Question 8
 
-### Layout Structure:
+**Text:** "What’s your long-term goal in life?"
+**Options:**
 
-1. **Hero Banner**
+* Cursor should generate **4-6 life goals** aligned with the anti-doomscrolling theme, e.g.:
 
-   - Uses task image
-   - Soft backdrop
-
-2. **Task Title** + short description
-
-3. **How to Do This Task** (Tips/steps)
-   Example: "Find a quiet spot. Set a 30-minute timer. Read with full attention."
-
-4. **Mark Done** Button
-
-   - ✅ Adds XP
-   - Triggers "Well Done" modal
-
-5. **Track Progress Button (Calendar icon)**
-
-   - Top-right of the page, similar to other mindful actions (1-min breathing, etc.)
-
-6. **Log Reflection (Optional)**
-
-   - Small journaling box
+  1. Build better daily habits
+  2. Improve focus and productivity
+  3. Strengthen relationships and social life
+  4. Grow physically and mentally stronger
+  5. Gain financial independence
 
 ---
 
-## 🎨 Visual Styling Guidelines
+## Motivational Page
 
-- **Cards:**
-
-  - Soft-glass container look
-  - Slight shadow
-  - Subtle lift or scale on press
-
-- **XP Glow:**
-
-  - Mild pulse/glow animation once task completed
-
-- **Spacing:**
-
-  - 24px between sections
-  - Allow breathing room for readability
+* **Top text:** "I’m proud of you for wanting to make changes."
+* **Center:** Large 🔥 fire emoji with glow animation.
+* **Below:** Text: "Let’s take control of your life."
+* **Button:** Continue → goes to result preview.
 
 ---
 
-## 🔟 Final Pre-Built Task List (with New Names, Categories )
+## Result Preview Page
 
-| Name                | Category    | Frequency | Description                             |     |     |
-| ------------------- | ----------- | --------- | --------------------------------------- | --- | --- |
-| Mindful Cold Shower | High Energy | 3x/week   | Wake up your senses with presence       |     |     |
-| Flow Movement       | High Energy | Daily     | Move mindfully with yoga or stretching  |     |     |
-| Read & Reflect      | Low Energy  | Daily     | Spend 30 focused minutes reading        |     |     |
-| Stillness Break     | Low Energy  | 2x/week   | Sit in silence, let thoughts pass       |     |     |
-| Deep Box Breathing  | Low Energy  | Daily     | Practice 4-4-4-4 box breathing          |     |     |
-| Soulful Nature Walk | Spiritual   | Weekly    | Recharge in nature with intention       |     |     |
-| Sunlight Ritual     | Wellness    | Daily     | Get 10 minutes of morning sunlight      |     |     |
-| Mindful Push-ups    | Fitness     | 3x/week   | Strengthen with awareness               |     |     |
-| Mini Digital Detox  | Wellness    | 2x/week   | Stay off-screen for 30+ mins            |     |     |
-| Learn & Grow        | Cognitive)  | Weekly    | Spend 30 minutes learning something new |     |     |
-
----
-
-**"Add a Personal Focus Goal" page**:
-
----
-
-### 📄 Add a Personal Focus Goal Page (Form Layout & UX Spec)
-
-This screen is where users can create their own custom XP-earning focus task to add to the **"Your Focus Goals"** section.
-
----
-
-#### 🧱 Page Structure:
-
-##### 1. **Header**
-
-- Title: `Create Your Own Focus Goal`
-- Subtitle (smaller): `Turn your habits into XP-powered rituals`
-- Optional back button (⬅️) to return to main Focus page.
-
----
-
-##### 2. **Form Fields**
-
-| Field Label     | Type          | Description                                                               |
-| --------------- | ------------- | ------------------------------------------------------------------------- |
-| **Goal Name**   | Text Input    | Required. 1-line goal title (e.g., "Read 10 Pages")                       |
-| **Description** | Multiline     | Optional. Short intention/benefit behind the task (e.g., "Sharpen focus") |
-| **Frequency**   | Select Picker | Choose from: `Daily`, `2x/week`, `3x/week`, `Weekly`, `Custom`            |
-| **XP Reward**   | Stepper/Input | User chooses XP amount to earn for completing (suggested range: 1–10 XP)  |
-
-✨ _Pro Tip copy (below XP input):_
-"Higher XP = bigger challenge! Be realistic and rewarding."
-
----
-
-##### 3. **Optional Settings (Toggles)**
-
-| Setting               | Type   | Description                                          |
-| --------------------- | ------ | ---------------------------------------------------- |
-| **Enable Streaks**    | Toggle | Turn on to track daily streaks (like habit chain 🔥) |
-| **Reflection Prompt** | Toggle | Adds a journal input after marking complete          |
-| **Notifications**     | Toggle | Remind me to do this (later config for time)         |
-
----
-
-##### 4. **Preview Card (Live Update)**
-
-- Shows a live preview of the card that will appear in the "Focus Goals" grid.
-- Includes task name, XP, frequency pill, etc.
-- Updates in real time as user fills the form.
-
----
-
-##### 5. **Save Button**
-
-- CTA: `➕ Add to Focus Goals`
-- Disabled until goal name is filled and frequency is selected.
-- On tap:
-
-  - Save task to local/app state
-  - Redirect back to Focus Page with success animation (or modal)
-  - XP bar briefly glows to indicate new opportunity added
-
----
-
-##### 6. **Design Notes**
-
-- Keep layout vertically scrollable
-- Soft beige or pastel background
-- Form inside a centered, rounded white container
-- Calm illustrations or icons to guide eyes
-- Consistent spacing: 20–24px between sections
-- Form fields should use soft shadow / neumorphic styling
-
----
-
-### 🧠 Future-Proofing Notes
-
-- Make this component modular so it can be reused in an "Edit Goal" flow later.
-- Optional idea: auto-suggest icons based on title (e.g., typing "Pushups" suggests 🏋️).
-
----
-
-## 🌱 XP Journey Journal – Vertical Progress Timeline (Redesigned)
-
-## This section defines the full design specification for the **Progress Page** timeline — turning XP tracking into an **emotional, interactive journal** of daily growth.
-
-### 🎯 Objective
-
-Replace the rigid XP "graph" or timeline with a **stacked vertical journey of daily growth**, styled like calm journal entries. This approach creates a stronger emotional connection and encourages ongoing reflection and behavior reinforcement.
-
----
-
-### 🧱 Layout Structure: "Daily XP Cards"
-
-Each day is its own **soft-glass container block**, stacked vertically with scrolling.
-
-```
-
-┌────────────────────────────────────┐
-│ 📆 Wednesday, June 26 │ ← Date Tag (light pastel pill)
-│ │
-│ 💠 XP Earned: +42 XP │ ← Horizontal XP fill bar / badge
-│ │
-│ 🌬️ Breathing +5 XP │
-│ 📓 Journal +3 XP │ ← Action list (same icons as other pages)
-│ 👆 Caught Scrolling +1 XP │
-│ 🧘 Cold Shower Task +10 XP │
-│ │
-│ 🎉 You reached 50 XP today! │ ← Milestone flag
-└────────────────────────────────────┘
-
-```
-
----
-
-### 🖼️ Visual Styling
-
-| Element              | Style                                                                     |
-| -------------------- | ------------------------------------------------------------------------- |
-| Container Background | Frosted-glass pastel block (white-tinted, soft shadow, blurred bg)        |
-| Date Header          | Pill-shaped pastel tag (light lavender, sky blue, or warm beige)          |
-| XP Indicator         | Either an XP number badge or a fluid bar that fills from left to right    |
-| Activity List        | Icons + text (flat pastel style) with subtle XP tags on the right (+3 XP) |
-| Padding/Margin       | Min 24px between blocks, inner padding 16px, rounded corners (xl)         |
-| Divider Line         | Faint horizontal squiggle or dash between days                            |
-| Scroll               | Natural vertical scroll, gentle snap-to-section behavior                  |
-
----
-
-### 🎮 Interaction Behavior
-
-- 🔼 **Expand on Tap**: Clicking/tapping a day expands or contracts its card.
-- 🪄 **Animated XP Fill**: XP bar animates to fill based on total XP earned that day.
-- 🎈 **Milestone Tags**:
-  - Show sparkle emoji or badge for first 50, 100 XP days
-  - "🔥 3-Day Streak!" pill if user hits 3+ days in a row
-- 🧠 **Optional Echo Prompt**: "What helped you stay focused today?" in empty field at bottom (logs into journal system)
-
----
-
-### 🔧 Toggle Filter
-
-At the top of the section, add:
-
-```
-
-[ Last 7 Days ] [ 21 Days ] [ 66 Days ]
-
-```
-
-- Styled as segmented buttons or tabs
-- Default: 7 Days
-- If user hasn't used app that long, only show as many days as data exists
-- Transitions smoothly on toggle; auto-scrolls to top
-
----
-
-### 🔗 XP Source Mapping
-
-| Action Source      | Icon | XP Range        |
-| ------------------ | ---- | --------------- |
-| Catch Me Scrolling | 👆   | +1 XP           |
-| 1-min Breathing    | 🌬️   | +5 XP           |
-| Screen-Free Timer  | ⏳   | +10 XP          |
-| Quick Journal      | 📓   | +3 XP           |
-| Reflect Card       | 💭   | +3 XP           |
-| Pre-Built Task     | 💪   | +5–15 XP        |
-| Custom Focus Goal  | ✅   | User-defined XP |
-
-XP data pulled dynamically from backend log.
-
----
-
-### 🧠 Refined UX Patterns
-
-| Experience Detail  | Treatment                                                              |
-| ------------------ | ---------------------------------------------------------------------- |
-| Only one card open | Closing all other days when new one is tapped                          |
-| Today's Highlight  | Soft green glow, pulsing badge "Today"                                 |
-| Empty day          | Grayed-out container: "No mindful activities tracked this day"         |
-| Tap-to-learn link  | If a task is repeatable, offer CTA: "Do this again now"                |
-| Calendar harmony   | Dates match other page's journal tracking format (top-right calendars) |
-
----
-
-### 📐 Placement
-
-- This should be the **topmost module** on the **Progress Page**
-- All other visualizations (e.g., streak rings, total XP counters, achievement cards) should follow
-
----
-
-# 🌟 Floating Navigation Tab Bar – Design & Implementation
-
-This section defines the structure, visuals, interactions, and implementation of the **Floating Navigation Tab Bar** that sits above the screen bottom and hosts the three core app pages: Mindful, Progress, and Focus.
-
----
-
-## 🔹 Design Specifications
-
-### Placement & Structure
-
-- **Position**: Floating, 30–36px above bottom of screen
-- **Width**: 70% of screen width (centered with 15% margins each side)
-- **Height**: 68px fixed
-- **Container Style**:
-  - Fully rounded corners (34px radius for pill shape)
-  - Background: soft glassmorphism with BlurView (intensity: 20)
-  - Translucent white: `rgba(255, 255, 255, 0.85)` on iOS, `0.95` on Android
-  - Shadow: 6px offset, 12px radius, 15% opacity, 8 elevation
-
----
-
-## 🔹 Tab Configuration
-
-**Only 3 tabs displayed** (Settings accessible via navigation but hidden from tab bar):
-
-| Position | Icon | Label    | Route Name | Navigation Target            |
-| -------- | ---- | -------- | ---------- | ---------------------------- |
-| Left     | 🌱   | Mindful  | index      | Main XP-gathering screen     |
-| Center   | 📈   | Progress | progress   | XP journey and timeline page |
-| Right    | 🎯   | Focus    | focus      | Ritual tasks and goals page  |
-
-### Tab Styling
-
-- **Icon**: 24px emoji with text shadow when active
-- **Label**: 11px font, 600 weight, 0.3 letter spacing
-- **Spacing**: Evenly distributed with `space-evenly` flexbox
-- **Touch Area**: Minimum 48x48px for accessibility
-
----
-
-## 🔹 Animation & Interaction States
-
-### Active Tab Animations
-
-- **Scale**: 1.1x scale-up with spring animation (tension: 150, friction: 8)
-- **Elevation**: Rises 4px (`translateY: -4`)
-- **Glow Effect**: 56px circular background with ice blue (#93D5E1) at 40% opacity
-- **Text Enhancement**:
-  - Icon opacity: 1.0 with ice blue text shadow
-  - Label: Bold (700 weight) with subtle text shadow
-
-### Inactive Tab States
-
-- **Scale**: 1.0 (normal)
-- **Position**: Base level (translateY: 0)
-- **Opacity**: Icons at 70%, labels at 60%
-- **Colors**: Muted gray tones
-
-### Transition Timing
-
-- **Spring Animation**: 250ms duration for scale and position
-- **Glow Animation**: 250ms linear timing for opacity fade
-- **Native Driver**: Used for transform animations (performance optimized)
-
----
-
-## 🔹 Implementation Architecture
-
-### Component Structure
-
-```javascript
-FloatingTabBar
-├── Container (Absolute positioned)
-├── TabBarContainer (Rounded, shadowed)
-├── BlurView (Glassmorphism background)
-├── TabBarInner (Flex row, space-evenly)
-└── TabButton × 3
-    ├── Animated.View (Scale + translateY)
-    ├── GlowBackground (Animated opacity)
-    ├── TabIcon (Emoji with conditional styling)
-    └── TabLabel (Text with conditional styling)
-```
-
-### Key Features
-
-- **Platform Adaptation**: Different blur intensities and backgrounds for iOS/Android
-- **Accessibility**: Full `accessibilityRole`, `accessibilityLabel`, and `accessibilityState`
-- **Touch Handling**: Uses `Pressable` for better touch response
-- **Animation Management**: Individual animated values per tab for smooth transitions
-- **Z-Index**: Set to 1000 to float above all content
-
----
-
-## 🔹 Integration Points
-
-### Tab Layout Integration
-
-```javascript
-// app/(tabs)/_layout.tsx
-<Tabs
-  tabBar={(props) => <FloatingTabBar {...props} />}
-  screenOptions={{
-    headerShown: false,
-    tabBarButton: HapticTab,
-  }}>
-```
-
-### Route Configuration
-
-- **Settings Screen**: Hidden via `href: null` but remains navigable
-- **Navigation Events**: Proper `tabPress` event handling with `canPreventDefault`
-- **State Management**: Integrated with Expo Router's tab state
-
----
-
-## 🔹 Performance Optimizations
-
-### Native Driver Usage
-
-- Transform animations (scale, translateY) use `useNativeDriver: true`
-- Color/opacity animations use native driver where possible
-- Smooth 60fps animations on both platforms
-
-### Memory Management
-
-- `useRef` for persistent animated values across renders
-- Proper cleanup of animation listeners
-- Optimized re-render cycles
-
----
-
-## 🧠 Accessibility Standards
-
-### WCAG Compliance
-
-- **Touch Targets**: 48x48px minimum (exceeds 44px requirement)
-- **Color Contrast**: Maintains 4.5:1 ratio for text/background
-- **Focus States**: Clear visual feedback for keyboard navigation
-- **Screen Reader**: Descriptive labels and state announcements
-
-### Interaction Patterns
-
-- **Haptic Feedback**: Integrated with existing HapticTab component
-- **Visual Feedback**: Immediate response to touch with scale animation
-- **State Communication**: Clear active/inactive visual distinction
-
----
-
-## 🧪 Testing Scenarios
-
-| Test Case            | Expected Behavior                                  |
-| -------------------- | -------------------------------------------------- |
-| Tab Press            | Smooth navigation with 250ms scale/rise animation  |
-| Active State         | Glowing background, raised position, enhanced text |
-| Screen Rotation      | Maintains 70% width, proper positioning            |
-| Keyboard Navigation  | Focus indicators and accessible state changes      |
-| Background Content   | No overlap with main content, proper z-index       |
-| Platform Differences | Appropriate blur/transparency per platform         |
-
----
-
-## 💡 Future Enhancements
-
-### Planned Features
-
-- **Scroll Response**: Auto-hide on scroll down, show on scroll up
-- **Haptic Patterns**: Custom vibration patterns per tab
-- **Micro-interactions**: Subtle particle effects or breathing animation
-- **Theme Adaptation**: Dynamic color adaptation based on app theme
-
-### Performance Monitoring
-
-- Animation frame rate tracking
-- Touch response time measurement
-- Memory usage optimization
-- Battery impact assessment
-
----
-
-This floating tab bar creates an intuitive, accessible, and visually appealing navigation experience that enhances the app's mindful, calming aesthetic while maintaining high performance standards.
-
----
-
-# 🔔 Notifications Page – README Spec for Cursor
-
-This spec outlines the complete design and behavior for the Notifications Page in our app. This should be implemented using **Expo Notifications**, supporting development and production modes.
-
----
-
-### ✅ Add Custom Reminder – README Spec for Cursor (iOS-only)
-
-This section describes the implementation of the **"Add Custom Reminder"** feature on the Notifications Page. The user can tap the ➕ button to create their own personalized reminder notification. This should be implemented only for **iOS using Expo Notifications**.
-
----
-
-## 📲 Entry Point
-
-- **Source**: Bell icon in top-right of Mindful Page → Notifications Page
-- On the Notifications Page →
-  **➕ Add Custom Reminder** button opens a full-screen modal or page
-
----
-
-## 🧩 Layout – Add Custom Reminder Screen
-
-Use a clean, soft card layout with ample padding. Modal should have iOS-style animation/transition.
-
-### Form Fields:
-
-| Field                | Type                         | Notes                                               |
-| -------------------- | ---------------------------- | --------------------------------------------------- |
-| Notification Message | Text input                   | Placeholder: _e.g. "Stay grounded."_                |
-| Frequency            | Segmented selector or picker | Options: `Once`, `Daily`, `Weekly`, `Specific Days` |
-| Time of Day          | Time picker                  | Preferably native iOS `UIDatePicker` style          |
-| Emoji / Icon         | Horizontal scroll pills      | Choices: `🌱 🔔 ☀️ 💫` (optional selection)         |
-
----
-
-## 🎯 Behavior Logic
-
-1. **On Submit**:
-
-   - Validate required fields (message + time).
-   - Save all data to local storage (AsyncStorage).
-   - Schedule the notification using:
-
-     ```js
-     Notifications.scheduleNotificationAsync();
-     ```
-
-   - Ensure notifications are properly configured for **iOS only**.
-
-2. **Confirmation**:
-
-   - Show a toast/alert saying:
-
-     > _"Reminder saved. We'll nudge you at the right time."_
-
-3. **Reminder Object Example (for local storage)**:
-
-```js
-{
-  id: 'uuid',
-  message: 'Stay grounded.',
-  frequency: 'Daily',
-  time: '08:00',
-  emoji: '🌱'
-}
-```
-
----
-
-## 💡 iOS-Only Notes
-
-- Use `expo-notifications` with iOS scheduling APIs.
-- Handle cases where notification permissions are not granted:
-- Show alert modal with button: _"Go to Settings"_.
-
----
-
-## 🖌️ Design
-
-- iOS-like modal appearance with rounded corners and padding.
-- Soft shadows, pastel backgrounds.
-- Use large title: **“Create Your Reminder”**
-- Segments and inputs should follow iOS native visual styles.
-
----
-
-## ✅ Completion Criteria
-
-- User can open the modal.
-- Fill and submit the form.
-- Reminder is saved and scheduled.
-- UX feedback is shown on success.
-
----
-
-### ✅ Notification Frequency Management
-
-This section describes the implementation of the **Notification Frequency Management** block on the Notifications Page. This block should appear **above the “Your Custom Reminders” section** and follow similar layout, styling, and data handling logic already used for the Custom Reminders section.
-
----
-
-## 🧭 Placement
-
-- **Position**: Place this section **above** the “Your Custom Reminders” block.
-- Keep both sections visually distinct but part of the same page layout.
-
----
-
-## 📦 Section Details
-
-- **Section Label:**
-  `🔔 Notify me every:`
-
-- **UI Component:**
-  Use a **horizontal pill-style selector** (preferred) or dropdown if needed:
+* **Top:** Wake Scroll Logo.
+* **Headline:**
 
   ```
-  [15 min] [30 min] [45 min] (default) [1 hr] [2 hrs]
+  66 Days  
+  to build lasting habits and quit doomscrolling
   ```
+* **Four small boxes:** Show benefits (generate realistic percentages). Examples:
 
-- **Helper Note below selector:**
+  1. Boost energy +38%
+  2. Reduce phone usage −60%
+  3. Improve focus +42%
+  4. Reduce fatigue −23%
+* **Below:** Box titled “Scientific Research” with external links (example placeholders):
 
-  > _"You’ll receive a gentle nudge if you’ve been mindlessly scrolling."_
-
-- **UI Design Notes:**
-
-  - Pills should be rounded, soft-colored (e.g. glassy pastel).
-  - Selected pill has subtle glow or filled background.
-  - Slight elevation/shadow on press.
-  - Add smooth animation on selection.
-
----
-
-## ⚙️ Behavior Logic
-
-- Tapping on a new frequency:
-
-  - Immediately cancels and resets scheduled notifications using `expo-notifications`.
-  - Update the user's notification frequency in persistent storage (`AsyncStorage`).
-  - Cursor should re-use the same local state/store approach as used in “Your Custom Reminders" making sure it does not affect the notifications in “Your Custom Reminders" section.
+  * [https://www.sciencedirect.com/science/article/pii/S0747563220303051](https://www.sciencedirect.com/science/article/pii/S0747563220303051)
+  * [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8600169/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8600169/)
+* **Button:** Continue → leads to main app experience.
 
 ---
 
-## 📝 Data Sample
+# Wake Scroll – Onboarding Flow (Next Pages Instructions)
 
-```js
-// Store selected frequency in local app storage
-{
-  notificationFrequency: "45 min";
-}
-```
+This document defines how to implement the **next set of onboarding pages (after the existing ones)**. Cursor should follow this precisely.
 
 ---
 
-## ✅ Completion Criteria
+## 1. Page: "Get My Program"
 
-- Section appears above "Your Custom Reminders".
-- Pills are styled, tappable, and reflect selected value.
-- Helper text is visible and aligned with the rest of the UI.
-- Frequency is saved to persistent storage.
-- Notifications reschedule correctly when selection changes.
+* **Background:** Same theme as earlier onboarding pages (soft gradients, calming, minimal).
+* **UI Elements:**
 
----
+  * A **centered button**: `"Get my Program"`
+* **Behavior:**
 
-## ✅ Feature: **Global Notifications Toggle**
-
-This toggle controls **both**:
-
-- "Notify Me Every" (nudge frequency)
-- "Your Custom Reminders"
+  * On tap, navigate to the next onboarding question set.
 
 ---
 
-### 📄 README-style Documentation for the Feature
+## 2. More Questions Pages (Lifestyle Tracking)
 
-**📌 Feature Name:** Global Notifications Toggle
-**📍 Location:** Notifications screen (top or bottom, based on state)
+We now ask **habit-related questions**.
+Each question should follow these rules:
 
----
+* **Progress bar** at the top (styled same as before).
+* **Question text** in large bold font.
+* **Answer input** depends on the question type (time picker, number selector, slider, etc.).
+* **No continue button** → move immediately to next page once the answer is selected.
+* **Back button** in top-left to go back to previous question.
 
-### 🧩 Purpose
+### Questions to Implement:
 
-Let users globally enable or disable all mindful notifications without deleting or reconfiguring existing preferences.
+1. **What time do you wake up right now?**
 
----
+   * Input: iOS-style **time picker** (hours + minutes).
 
-### 🖼️ Design Instructions
+2. **How much water do you drink a day?**
 
-**Toggle States:**
+   * Input: **number selector** in liters (0L–10L).
 
-#### 1. **When notifications are disabled:**
+3. **How much do you usually run in a week?**
 
-- 🔘 Show toggle **at the top** of the Notifications screen (just below the page title).
-- Show text:
+   * Input: **slider** (0 km – 100 km).
 
-  > 🔕 **Notifications are Off**
-  > Enable reminders when you're ready for mindful nudges.
+4. **How many hours do you usually work out in a week?**
 
-- Toggle label: `Enable Notifications`
+   * Input: **number selector** (0–20 hours).
 
-#### 2. **When notifications are enabled:**
+5. **How much time do you spend meditating in a week?**
 
-- 🔘 Show toggle **at the bottom** of the Notifications screen.
-- Text (above the toggle):
+   * Input: **slider** (0–20 hours).
 
-  > ✅ **Notifications are On**
-  > You’ll receive nudges and custom reminders as configured.
+6. **How much time do you spend reading books in a week?**
 
-- Toggle label: `Disable Notifications`
+   * Input: **slider** (0–20 hours).
 
-**📱 Styling Consistency:**
+7. **How much time do you spend on social media in a week?**
 
-- Use the same toggle switch style as in the rest of your app (rounded, animated, native feel).
-- Add a soft shadow box or rounded background to make the toggle section feel deliberate (like other pages’ cards).
-- Use emoji and subtle accent colors for each state.
+   * Input: **slider** (0–80 hours).
 
 ---
 
-### ⚙️ Logic Instructions
+## 3. Page: "Analyzing Your Habits"
 
-1. Use a boolean flag in local storage:
+* **Background:** Same theme, but darker overlay for suspense.
+* **UI Elements:**
 
-   ```ts
-   notificationsEnabled = true | false;
-   ```
+  * Animated loader (spinning shapes, waves, or breathing dots).
+  * Text: `"Analyzing your habits..."`
+* **Behavior:**
 
-2. If `notificationsEnabled === false`, hide:
+  * Wait **4 seconds**.
+  * Then replace loader with result text:
 
-   - "Notify Me Every" section
-   - "Your Custom Reminders" section (including Add button)
-
-3. When toggled:
-
-   - If turning **off**, cancel all scheduled Expo notifications (`Notifications.cancelAllScheduledNotificationsAsync()`).
-   - If turning **on**, reschedule according to:
-
-     - Frequency selected
-     - All saved custom reminders
-
-4. Maintain layout:
-
-   - Animate toggle’s position change (top <-> bottom)
-   - Show/hide other sections with a fade or slide-in animation
+    * Example:
+      `"Based on your data, you showed 18% more signs of poor lifestyle and discipline than the average 18–24 year old."`
+    * The **percentage must be dynamic** (calculated from answers).
+    * Show **percentage in red** to indicate warning/danger.
+  * Sympathy text below:
+    `"It's normal. People in your age group often face harder challenges."`
+  * Button: `"See lifestyle rating"` → next page.
 
 ---
 
-# ✨ Notifications Page Redesign – Visual Only (No Logic Changes)
+## 4. Page: "Your Wake Scroll Rating"
 
-This section outlines visual and UX improvements to the **Notifications Page**. Maintain the existing notification logic and user behavior, but **enhance clarity, warmth, and emotional connection** in design.
+* **Headline:** `"Your Wake Scroll Rating"`
+* **Description:** `"Based on your answers, this is your current rating, reflecting your lifestyle and habits now."`
+* **UI Elements:**
 
----
+  * Display **rating boxes** (styled as cards with soft borders).
+  * Each box shows **category + score**.
+  * Example categories (keep aligned with doomscrolling theme):
 
-## 🔹 1. Rebrand Section Heading
-
-**Current Label:** “Notify Me Every”
-
-**New Label:** `Mindful Nudges`
-
-**Subtitle (smaller font, muted):**
-
-> “Gentle reminders to pause, breathe, and check in with yourself.”
-
-- Typography: Use semi-bold title font with rounded letter spacing
-- Color: Soft charcoal for title, faded pastel blue or lavender for subtitle
-
----
-
-## 🔹 2. Add Explainer Mini-Card (Above Frequency Selector)
-
-### Text:
-
-```plaintext
-🧘 Why These Reminders?
-We’ll gently nudge you to pause and take a mindful breath — especially when you might be scrolling without realizing.
-```
-
-### Style:
-
-- Rounded corners (16px radius)
-- Background: pastel beige, soft lavender, or white with blur (glassmorphism)
-- Font size: Medium (readable)
-- Emoji anchored left
-- Animation: Fade + gentle scale-in on mount
-
-**Optional Expansion Behavior:**
-
-- Tapping the card could expand into a small visual (optional, future-ready)
+    * Overall: 44
+    * Wisdom: 40
+    * Strength: 40
+    * Focus: 45
+    * Confidence: 50
+    * Discipline: 46
+  * **Numbers must be dynamic**, based on answers.
+* **Button:** `"See potential rating"`
 
 ---
 
-## 🔹 3. Chip Selector Upgrade – Scrollable Frequency Selector
+## 5. Page: "Your Potential Rating"
 
-### Changes to Selector UI:
+* **Headline:** `"Your Potential Rating"`
+* **Background:** Bright + hopeful (gradient with green accents).
+* **Text:** Motivational, e.g.
+  `"This is where you could be in 66 days with Wake Scroll."`
+* **UI Elements:**
 
-- Convert current dropdown or pill row into a **horizontal chip carousel**
-- Each chip includes:
+  * Rating boxes similar to the last page, but in **green**, with higher values than current rating.
+  * Example:
 
-| Time   | Sub-Label        |
-| ------ | ---------------- |
-| 15 min | “Very Often”     |
-| 30 min | “Often”          |
-| 45 min | “Balanced”       |
-| 1 hr   | “Gentle Cadence” |
-| 2 hrs  | “Rarely”         |
-
-### Style Enhancements:
-
-- Chips have a soft shadow and glowing border when selected
-- Light bounce or pop animation on tap
-- Selected pill animates with subtle pulse (XP-style glow)
+    * Overall: 78
+    * Wisdom: 72
+    * Strength: 70
+    * Focus: 85
+    * Confidence: 80
+    * Discipline: 82
+* **Button:** `"See how I will improve"` → goes to next onboarding flow page.
 
 ---
 
-## 🔹 4. Add Top Hero Visual / Header Graphic
+## Technical Notes for Cursor
 
-### Image Path:
+1. Keep **page navigation sequential** (one page → next page).
+2. Store all questions, answer options, and scoring logic in a separate file (`questions.js` or JSON).
+3. Ensure **dynamic calculation** of percentages and ratings based on user answers.
+4. Keep **UI animations smooth and subtle** (fade in/out between pages, sliding transitions).
+5. Buttons: large, rounded, consistent with earlier onboarding theme.
 
-`/assets/preBuiltTasks/notification-page.png`
+--
+# Onboarding Flow – Extended Instructions
 
-### Placement:
-
-- At the very top of Notifications Page, **above "Mindful Nudges"**
-- Use a rounded rectangular container (width: 90% of screen)
-- Add soft drop shadow
-- Add margin below (at least 24px)
-
----
-
-## 🧘 Summary of Spacing & Flow
-
-- Start with hero image
-- Then show “Mindful Nudges” title and subtitle
-- Add explainer card next
-- Add horizontal chip carousel
-- Add any toggles or control features
-- Ensure a **clean breathing layout** with:
-
-  - Minimum 24px vertical space between blocks
-  - Avoid color stacking — use whitespace or soft dividers
+This section describes the **post-Potential Rating onboarding pages** for the **Wake Scroll** app. Cursor must follow these instructions exactly to implement the following screens.
 
 ---
 
-## 🚫 DO NOT:
+## Page 1 – Core Features Overview
 
-- Change any logic
-- Alter how notifications are scheduled or stored
-- Affect the existing toggle behavior for enabling/disabling reminders
+**Purpose:** Show users the app’s **8 core features** so they understand the value proposition.
 
-```
+**Layout:**
 
-```
+* **Title/Header (centered, bold):**
+  “What You Unlock with Wake Scroll”
+* **Feature Boxes (grid layout, 2 columns):**
+  Each box has:
 
-😴 Sleep Mode — Feature Specification for Notifications Page
-🧠 Purpose:
-To allow users to set a sleep window (Start Time → End Time) during which no notifications will be delivered.
+  * An emoji or icon at the top
+  * Feature title (bold)
+  * Short description (1 line max)
 
-✅ Design & UX:
-📍 Position:
-Place the Sleep Mode section below the "Mindful Nudges" (Notify Me Every) section and above any toggle or footer.
+**Features to show (pull from actual app functionality):**
 
-🛏️ Section Title:
-“Sleep Mode”
+1. 🔔 **Mindful Notifications** – Gentle nudges to stop doomscrolling.
+2. 📵 **Anti-Doomscrolling Timer** – Smart timers to control usage.
+3. 📊 **Progress Tracking** – See how your habits change over time.
+4. 🌱 **Prebuilt Growth Tasks** – Habits like journaling & detox.
+5. 😊 **Mood & Reflection Logs** – Track your feelings daily.
+6. 🧘 **Mindful Exercises** – Breathing, calming focus drills.
+7. 🗓️ **Calendar Heatmaps** – Visualize streaks and activity.
+8. 💥 **Streak XP System** – Build consistency, make growth addictive.
 
-Subtitle: “Pause notifications during your rest hours.”
+**Continue Button:**
 
-⏰ UI Elements:
-Label: Start Time
-→ iOS-style time picker (or 12hr/24hr dropdown selector)
-
-Label: End Time
-→ Same time picker
-
-Toggle Switch:
-🛏 Enable Sleep Mode
-
-🌙 Visual Design:
-Rounded glassy container with soft pastel background (beige / lavender fade)
-
-Icon suggestion: 🛌 or 🌙 beside title
-
-Light sleep-wave divider between this and other sections
-
-💡 Behavior Logic:
-If Sleep Mode is enabled, then:
-
-Before sending any notification, check:
-
-js
-const now = new Date();
-const sleepStart = new Date(); // set to selected start hour
-const sleepEnd = new Date(); // set to selected end hour
-
-If current time falls between those, suppress notification.
-
-Persist sleep start/end and toggle status using AsyncStorage.
-
-Optional: On sleep time overlap (e.g., 10 PM to 7 AM across midnight), handle wrap-around logic properly.
-
-# Paywall Modal – Scroll Recovery App
-
-## 🧭 Objective
-
-Design and implement a **full-screen, scrollable paywall modal** that persuades users to upgrade by showcasing the benefits of premium features in a calming, mindful UI. This modal will feature a **fixed plan selector at the bottom**, **scrollable benefits section**, and a **mindful hero image and quote** at the top to emotionally engage the user.
+* Sticky at the bottom.
+* Label: “Continue”
+* Navigates to next onboarding page.
 
 ---
 
-## 🖼️ UI Layout Overview
+## Page 2 – Growth Web (Radar Chart Style)
 
-The modal is broken into four primary zones:
+**Purpose:** Show **projected growth across key lifestyle categories** over different weeks.
 
-1. **Top Navigation (fixed)**
-2. **Scrollable Content Area (flex-grow)**
-3. **Plan Selection Section (fixed-bottom)**
-4. **Legal Footer (bottom of scrollable content)**
+**Layout:**
 
----
+* **Title/Header:**
+  “Your Growth Journey”
+* **Radar Chart / Web Visualization:**
 
-## 🔧 Functional Requirements
+  * Axes: **Overall, Wisdom, Discipline, Confidence, Strength, Focus**
+  * Page shows **Week 1** baseline growth.
+* **Interaction:**
 
-### ✅ Modal Behavior
+  * On pressing **Continue**, animation should expand to **Week 5**, then **Week 10** (stronger growth in all areas).
+  * Use smooth morphing animation between weeks.
 
-- Full-screen overlay (z-index over current app view)
-- Scrollable main content
-- `X` button at top-right to close the modal
-- `Restore Purchases` as a tappable text link at top-left
+**Continue Button:**
 
----
-
-## ✨ UI Elements and Styling Details
-
-### 1. 🧭 **Hero Section**
-
-- **Headline**:  
-  `“You weren’t born to scroll. You were made to live.”`  
-  Font: Large, serif or soft-rounded sans-serif. Centered.
-- **Subheadline**:  
-  _Unlock the full experience to take back your time, your mind, and your life — one intentional moment at a time._  
-  Font: Medium, muted, centered.
-
-- **Hero Illustration** (centered):  
-  saved at /assets/images/paywallImages.png
+* Bottom sticky.
+* Label: “Continue”
+* Cycles through weeks → Week 1 → Week 5 → Week 10 → next page.
 
 ---
 
-### 2. 🛠️ **Features List (scrollable section)**
+## Page 3 – Time Awareness Page
 
-Each feature should be styled like a horizontal card or soft container with:
+**Purpose:** Show users how much of the year has already passed dynamically.
 
-- Rounded corners
-- Emoji icon on the left
-- Headline + supporting copy
-- Soft divider or padding between each card
+**Layout:**
 
-#### List of Features:
+* **Dynamic Text (centered):**
 
-- `🧠 Interruptive Mindful Nudges`: Replace late-night doomscrolling with timely, self-reflective prompts like _“Is this helping me?”_
-- `💥 Scroll-Free Streak Builder`: XP-powered streaks to reward intentional use.
-- `📊 Detailed Journey Tracking`: See how often you interrupted scrolling or reflected.
-- `🌱 Power Habits`: Unlock 10 science-backed habits (e.g., Cold Showers, Digital Detox).
-- `😊 Mood Emojis & Check-ins`: Log how you feel and track what improves your day.
-- `📆 Calendar + Heatmaps`: Visual patterns of behavior and mood over time.
-- `🧘 Breathing Exercises`: Quick, guided calming sessions.
+  * “\${currentYear} is already \${percentage}% gone.”
+  * Calculate percentage = `(daysElapsed / totalDays) * 100`.
+* **Follow-up Text:**
 
----
+  * “Here’s how Wake Scroll will help you make \${currentYear} your best year ever.”
+* **Animation:**
 
-### 3. 💬 **User Testimonial**
+  * Use a clock/calendar-like animation to reinforce the concept of time slipping away.
 
-Simple centered quote block:
+**Continue Button:**
 
-> _“After just one week, I realized how much time I was giving away for free.”_
+* Label: “Continue”
+* Takes user to the next onboarding page.
 
 ---
 
-### 4. 💰 **Plan Selection Section** (Fixed Bottom)
+## Page 4 – Letter from the Future
 
-This area **remains visible at all times**, docked to the bottom of the modal.
+**Purpose:** Create emotional connection & motivation.
 
-- Background: White or slightly translucent with gentle drop shadow
-- Rounded top corners
-- Display both pricing plans:
+**Layout:**
 
-```
+* **Header:**
+  “A Letter From Your Future Self”
+* **Box with Letter:** (styled card with soft background)
+  Sample text (replace with actual paywall-like copy, dynamic tone):
 
-\$3.99 / week – Start simple, stay grounded
-\$29.99 / year – Best value | save 85% (7-day free trial)
+  > “I’m proud of you. A few weeks ago, you decided to stop doomscrolling and reset your life. Now, I feel more focused, happier, and in control. This was the moment it all changed.”
+* **Footer:**
 
-```
+  * Subtle animated glow / sparkle effect.
 
-- CTA Button:
-  **Start 7-Day Free Trial** → Full-width, rounded button with subtle glow
-- Small text:
-  `🛡️ Cancel anytime. No charges until trial ends.` (beneath button)
+**Continue Button:**
 
----
-
-### 5. ⚖️ Legal Links (at bottom of scrollable content)
-
-Text links (center-aligned):
-
-- **Terms & Conditions**
-- **Privacy Policy**
-
-Use `TouchableOpacity` or `Pressable` with light underline or muted gray color.
+* Label: “Continue”
+* Navigates to next onboarding page (Paywall or main app depending on flow).
 
 ---
 
-## 🧭 Header Navigation
+## General Notes
 
-- Top-left: `Restore Purchases` (small tappable link)
-- Top-right: `X` icon to close modal (absolutely positioned)
-
----
-
-## 🎨 Theming & Visual Style
-
-- **Background**: Gentle yellow or lavender blur
-- **Modal Card**: White or cream with soft shadows and rounded edges
-- **Emoji Icons**: For each feature card (use actual Unicode emoji or local assets)
-- **Fonts**: Rounded, soft sans-serif or elegant serif
-- **Animations**:
-- Slight shimmer/sparkle on XP streak icon
-- Button glow effect on hover/press
+* **Consistency:** Follow the **design system** of earlier onboarding pages (fonts, backgrounds, button style, progress indicators).
+* **Animations:** Keep them **subtle and meaningful**, not distracting.
+* **Transitions:** Smooth slide/fade transitions between pages.
+* **Progress Indicator:** Continue the same top progress bar style across these pages.
 
 ---
-
-## ✅ Deliverables
-
-- One full-screen modal component (e.g., `PaywallModal.js`)
-- Scrollable layout for benefits
-- Sticky bottom pricing section
-- Hook up close and restore logic with placeholder functions
-- Use `Image` or `SVG` placeholder for mindful hero illustration
-
----
-
-## 📱 Responsiveness
-
-- Ensure vertical scrolling works on smaller phones
-- Allow the plan selector to remain fixed as user scrolls features
-- Optimize for both light and dark themes (if supported)
-
-```
-
-```
