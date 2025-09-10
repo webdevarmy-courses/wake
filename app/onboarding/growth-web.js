@@ -6,9 +6,21 @@ import Svg, { Circle, Line, Polygon, Text as SvgText } from "react-native-svg";
 
 const { width, height } = Dimensions.get("window");
 
-function RadarChart({ data, centerX, centerY, radius, animated = false }) {
+function RadarChart({ data, centerX, centerY, radius, animated = false, week = 1 }) {
   const categories = ["Overall", "Wisdom", "Discipline", "Confidence", "Strength", "Focus"];
   const animatedValues = categories.map(() => useRef(new Animated.Value(0)).current);
+  
+  // Color progression based on week
+  const getColors = (week) => {
+    switch(week) {
+      case 1: return { fill: "rgba(149, 117, 205, 0.2)", stroke: "#9575CD", dot: "#9575CD" };
+      case 5: return { fill: "rgba(123, 104, 238, 0.3)", stroke: "#7B68EE", dot: "#7B68EE" };
+      case 10: return { fill: "rgba(50, 205, 50, 0.4)", stroke: "#32CD32", dot: "#00FF00" };
+      default: return { fill: "rgba(149, 117, 205, 0.2)", stroke: "#9575CD", dot: "#9575CD" };
+    }
+  };
+  
+  const colors = getColors(week);
 
   useEffect(() => {
     if (animated) {
@@ -73,9 +85,9 @@ function RadarChart({ data, centerX, centerY, radius, animated = false }) {
       {/* Data polygon */}
       <Polygon
         points={points.map(p => `${p.x},${p.y}`).join(' ')}
-        fill="rgba(149, 117, 205, 0.3)"
-        stroke="#9575CD"
-        strokeWidth="2"
+        fill={colors.fill}
+        stroke={colors.stroke}
+        strokeWidth="3"
       />
 
       {/* Data points */}
@@ -84,8 +96,10 @@ function RadarChart({ data, centerX, centerY, radius, animated = false }) {
           key={index}
           cx={point.x}
           cy={point.y}
-          r="4"
-          fill="#9575CD"
+          r={week === 10 ? "6" : "4"}
+          fill={colors.dot}
+          stroke={week === 10 ? "#FFFFFF" : colors.stroke}
+          strokeWidth={week === 10 ? "2" : "1"}
         />
       ))}
 
@@ -118,9 +132,9 @@ export default function GrowthWebPage() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const weekData = {
-    1: [25, 20, 22, 28, 24, 26], // Week 1 baseline
-    5: [45, 42, 48, 50, 46, 44], // Week 5 progress  
-    10: [70, 68, 75, 72, 70, 73] // Week 10 strong growth
+    1: [55, 35, 45, 60, 40, 50], // Week 1 - Varied progress with clear polygon spread
+    5: [75, 65, 70, 80, 68, 72], // Week 5 - Strong improvement  
+    10: [95, 88, 92, 98, 90, 96] // Week 10 - Nearly perfect scores with some variation
   };
 
   const weekLabels = {
@@ -201,6 +215,7 @@ export default function GrowthWebPage() {
               centerY={centerY}
               radius={radius}
               animated={true}
+              week={currentWeek}
             />
           </Animated.View>
 

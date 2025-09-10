@@ -46,8 +46,8 @@ export default function LetterFuturePage() {
   };
 
   const handleContinue = () => {
-    // Navigate to main app after onboarding completion
-    router.push("/(tabs)/");
+    // Navigate to onboarding paywall
+    router.push("/onboarding/paywall");
   };
 
   const letterTranslateY = letterAnim.interpolate({
