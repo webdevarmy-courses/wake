@@ -3,10 +3,16 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { initializeNotifications } from '@/utils/notificationManager';
+
+// Conditional import for react-native-reanimated to prevent Expo Go crashes
+try {
+  require('react-native-reanimated');
+} catch (e) {
+  console.warn('react-native-reanimated not available in Expo Go. Animations may not work properly.');
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

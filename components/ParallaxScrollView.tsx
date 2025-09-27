@@ -1,15 +1,27 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, {
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useScrollViewOffset,
-} from 'react-native-reanimated';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedView } from '@/components/ThemedView';
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
+
+// Conditionally import reanimated to prevent Expo Go crashes
+let Animated: any = null;
+let interpolate: any = null;
+let useAnimatedRef: any = null;
+let useAnimatedStyle: any = null;
+let useScrollViewOffset: any = null;
+
+try {
+  const reanimated = require('react-native-reanimated');
+  Animated = reanimated.default;
+  interpolate = reanimated.interpolate;
+  useAnimatedRef = reanimated.useAnimatedRef;
+  useAnimatedStyle = reanimated.useAnimatedStyle;
+  useScrollViewOffset = reanimated.useScrollViewOffset;
+} catch (e) {
+  console.warn('react-native-reanimated not available in ParallaxScrollView, using fallback');
+}
 
 const HEADER_HEIGHT = 250;
 
@@ -24,43 +36,69 @@ export default function ParallaxScrollView({
   headerBackgroundColor,
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
-  const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
-          ),
-        },
-        {
-          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
-        },
-      ],
-    };
-  });
+  
+  // Check if reanimated is available
+  const hasReanimated = Animated && useAnimatedRef && useScrollViewOffset && useAnimatedStyle;
 
+  if (hasReanimated) {
+    // Use reanimated if available
+    const scrollRef = useAnimatedRef<any>();
+    const scrollOffset = useScrollViewOffset(scrollRef);
+    const headerAnimatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [
+          {
+            translateY: interpolate(
+              scrollOffset.value,
+              [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+              [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
+            ),
+          },
+          {
+            scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
+          },
+        ],
+      };
+    });
+
+    return (
+      <ThemedView style={styles.container}>
+        <Animated.ScrollView
+          ref={scrollRef}
+          scrollEventThrottle={16}
+          scrollIndicatorInsets={{ bottom }}
+          contentContainerStyle={{ paddingBottom: bottom }}>
+          <Animated.View
+            style={[
+              styles.header,
+              { backgroundColor: headerBackgroundColor[colorScheme] },
+              headerAnimatedStyle,
+            ]}>
+            {headerImage}
+          </Animated.View>
+          <ThemedView style={styles.content}>{children}</ThemedView>
+        </Animated.ScrollView>
+      </ThemedView>
+    );
+  }
+
+  // Fallback for Expo Go or when reanimated is not available
   return (
     <ThemedView style={styles.container}>
-      <Animated.ScrollView
-        ref={scrollRef}
+      <ScrollView
         scrollEventThrottle={16}
         scrollIndicatorInsets={{ bottom }}
         contentContainerStyle={{ paddingBottom: bottom }}>
-        <Animated.View
+        <View
           style={[
             styles.header,
             { backgroundColor: headerBackgroundColor[colorScheme] },
-            headerAnimatedStyle,
           ]}>
           {headerImage}
-        </Animated.View>
+        </View>
         <ThemedView style={styles.content}>{children}</ThemedView>
-      </Animated.ScrollView>
+      </ScrollView>
     </ThemedView>
   );
 }
