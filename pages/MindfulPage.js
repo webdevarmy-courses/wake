@@ -3,16 +3,12 @@ import {
   useIsFocused,
   useNavigation,
 } from "@react-navigation/native";
-import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+  StyleSheet
 } from "react-native";
 import CatchScrollButton from "../components/CatchScrollButton";
 import MindfulBackground from "../components/MindfulBackground";
@@ -74,10 +70,6 @@ const MindfulPage = () => {
     setModalVisible(false);
   };
 
-  const handleOpenOnboarding = () => {
-    router.push("/onboarding/Onboarding1");
-  };
-
   return (
     <MindfulBackground>
       <SafeAreaView style={styles.container}>
@@ -134,13 +126,6 @@ const MindfulPage = () => {
           visible={paywallVisible}
           onClose={() => setPaywallVisible(false)}
         />
-
-        {/* Onboarding CTA Button (non-intrusive) */}
-        <View style={styles.onboardingCtaContainer}>
-          <TouchableOpacity style={styles.onboardingButton} onPress={handleOpenOnboarding} activeOpacity={0.9}>
-            <Text style={styles.onboardingButtonText}>Open Onboarding</Text>
-          </TouchableOpacity>
-        </View>
       </SafeAreaView>
     </MindfulBackground>
   );
@@ -192,27 +177,6 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     textAlign: "center",
     opacity: 0.8,
-  },
-  onboardingCtaContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
-  onboardingButton: {
-    backgroundColor: "#9575CD",
-    borderRadius: 30,
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  onboardingButtonText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 16,
   },
 });
 

@@ -1097,8 +1097,14 @@ export default function OnboardingPaywall() {
       const purchaseResult = await Purchases.purchasePackage(packageToPurchase);
       
       if (purchaseResult.customerInfo.entitlements.active["Premium"]) {
+        // Small delay to ensure state updates propagate
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         Alert.alert("Success!", "Welcome to Wake Scroll Premium!", [
-          { text: "Continue", onPress: () => router.push("/(tabs)/") }
+          { text: "Continue", onPress: () => {
+            // Navigate to tabs - the index will now properly detect premium status
+            router.replace("/(tabs)/");
+          }}
         ]);
       }
     } catch (error) {
@@ -1112,8 +1118,11 @@ export default function OnboardingPaywall() {
     try {
       const customerInfo = await Purchases.restorePurchases();
       if (customerInfo.entitlements.active["Premium"]) {
+        // Small delay to ensure state updates propagate
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
         Alert.alert("Success!", "Purchases restored successfully!", [
-          { text: "Continue", onPress: () => router.push("/(tabs)/") }
+          { text: "Continue", onPress: () => router.replace("/(tabs)/") }
         ]);
       } else {
         Alert.alert("No Purchases", "No active purchases found to restore.");
@@ -1132,7 +1141,7 @@ export default function OnboardingPaywall() {
   };
 
   if (isPremiumMember) {
-    router.push("/(tabs)/");
+    router.replace("/(tabs)/");
     return null;
   }
 
@@ -1562,7 +1571,7 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
   bottomPadding: {
-    height: 140, // Further reduced space for compact plan selector
+    height: 180, // Increased to prevent legal links from being hidden by plan selector
   },
   planSelectorContainer: {
     position: "absolute",
