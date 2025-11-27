@@ -2,19 +2,19 @@ import useRevenueCat from "@/hooks/useRevenueCat";
 import { BlurView } from "expo-blur";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Animated,
-  Dimensions,
-  Image,
-  Linking,
-  Modal,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    Animated,
+    Dimensions,
+    Image,
+    Linking,
+    Modal,
+    Pressable,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Purchases from "react-native-purchases";
 
@@ -207,37 +207,65 @@ const PaywallModal = ({ visible, onClose }) => {
   };
 
   const handleYearlyPurchase = async () => {
-    if(!currentOffering?.annual){
+    // Try to find the annual package
+    const annualPackage = currentOffering?.annual || 
+                         currentOffering?.availablePackages?.find(pkg => 
+                           pkg.identifier === '$rc_annual' || 
+                           pkg.packageType === 'ANNUAL'
+                         );
+    
+    if(!annualPackage){
+      console.error("Annual package not found");
+      Alert.alert("Error", "Annual plan not available. Please try again later.");
       return;
     }
   
     try {
-      const purchaseInfo = await Purchases.purchasePackage(currentOffering.annual);
+      console.log("Attempting yearly purchase with package:", annualPackage.identifier);
+      const purchaseInfo = await Purchases.purchasePackage(annualPackage);
   
-      if(purchaseInfo?.customerInfo?.entitlements?.active?.PREMIUM) {
+      if(purchaseInfo?.customerInfo?.entitlements?.active?.premium) {
         console.log("Yearly purchase successful");
+        Alert.alert("Success", "Welcome to Premium! 🎉");
         handleClose();
       }
     } catch (error) {
       console.error("Purchase error:", error);
+      if (!error.userCancelled) {
+        Alert.alert("Purchase Failed", error.message || "Something went wrong. Please try again.");
+      }
     }
   };
   
   // And update your handleWeeklyPurchase to not be called on plan selection:
   const handleWeeklyPurchase = async () => {
-    if(!currentOffering?.weekly){
+    // Try to find the weekly package
+    const weeklyPackage = currentOffering?.weekly || 
+                         currentOffering?.availablePackages?.find(pkg => 
+                           pkg.identifier === '$rc_weekly' || 
+                           pkg.packageType === 'WEEKLY'
+                         );
+    
+    if(!weeklyPackage){
+      console.error("Weekly package not found");
+      Alert.alert("Error", "Weekly plan not available. Please try again later.");
       return;
     }
   
     try {
-      const purchaseInfo = await Purchases.purchasePackage(currentOffering.weekly);
+      console.log("Attempting weekly purchase with package:", weeklyPackage.identifier);
+      const purchaseInfo = await Purchases.purchasePackage(weeklyPackage);
   
-      if(purchaseInfo?.customerInfo?.entitlements?.active?.PREMIUM) {
+      if(purchaseInfo?.customerInfo?.entitlements?.active?.premium) {
         console.log("Weekly purchase successful");
+        Alert.alert("Success", "Welcome to Premium! 🎉");
         handleClose();
       }
     } catch (error) {
       console.error("Purchase error:", error);
+      if (!error.userCancelled) {
+        Alert.alert("Purchase Failed", error.message || "Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -702,7 +730,13 @@ const PaywallModal = ({ visible, onClose }) => {
                             },
                           ]}
                         >
-                          <Text style={styles.planPrice}>{currentOffering.weekly?.product.priceString}</Text>
+                          <Text style={styles.planPrice}>
+                            {currentOffering?.weekly?.product?.priceString || 
+                             currentOffering?.availablePackages?.find(pkg => 
+                               pkg.identifier === '$rc_weekly' || pkg.packageType === 'WEEKLY'
+                             )?.product?.priceString || 
+                             "$2.99"}
+                          </Text>
                           <Text style={styles.planPeriod}>per week</Text>
                           <Text style={styles.planDescription}>
                             Start simple, stay grounded
@@ -731,7 +765,13 @@ const PaywallModal = ({ visible, onClose }) => {
                             },
                           ]}
                         >
-                          <Text style={styles.planPrice}>{currentOffering.annual?.product.priceString}</Text>
+                          <Text style={styles.planPrice}>
+                            {currentOffering?.annual?.product?.priceString || 
+                             currentOffering?.availablePackages?.find(pkg => 
+                               pkg.identifier === '$rc_annual' || pkg.packageType === 'ANNUAL'
+                             )?.product?.priceString || 
+                             "$29.99"}
+                          </Text>
                           <Text style={styles.planPeriod}>per year</Text>
                           <Text style={styles.planDescription}>
                             Save 85% • 7-day free trial

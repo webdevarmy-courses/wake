@@ -30,8 +30,9 @@ function useRevenueCat(){
         const hasActiveSubscription = customerInfo.activeSubscriptions.includes(typesOfMembership.weekly) || 
                                     customerInfo.activeSubscriptions.includes(typesOfMembership.yearly);
         
-        // Also check entitlements as a backup
-        const hasEntitlements = customerInfo.entitlements?.active?.PREMIUM !== undefined;
+        // Also check entitlements as a backup (check both lowercase and uppercase)
+        const hasEntitlements = customerInfo.entitlements?.active?.premium !== undefined || 
+                               customerInfo.entitlements?.active?.PREMIUM !== undefined;
         
         const result = hasActiveSubscription || hasEntitlements;
         console.log('[RevenueCat] Premium status check:', {
@@ -66,6 +67,17 @@ function useRevenueCat(){
 
                 const offerings = await Purchases.getOfferings();
                 const customerInfo = await Purchases.getCustomerInfo();
+
+                console.log('[RevenueCat] Offerings received:', {
+                    current: offerings.current?.identifier,
+                    availablePackages: offerings.current?.availablePackages?.map(pkg => ({
+                        identifier: pkg.identifier,
+                        packageType: pkg.packageType,
+                        price: pkg.product?.priceString
+                    })),
+                    weekly: offerings.current?.weekly?.identifier,
+                    annual: offerings.current?.annual?.identifier
+                });
 
                 console.log('[RevenueCat] Customer info:', {
                     activeSubscriptions: customerInfo.activeSubscriptions,
