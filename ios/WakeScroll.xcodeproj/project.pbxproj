@@ -10,7 +10,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2009C5D3A3EF3E3F64844ACA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A66F1CFA5C90D82C4D63BA71 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		5307F5BF2ED89F0900428DAB /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 5307F5BE2ED89F0900428DAB /* Products.storekit */; };
 		5DE6F56695028D239E612A0E /* libPods-WakeScroll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F7DD54EB92F325B14660E0D /* libPods-WakeScroll.a */; };
 		B2953DD2529100A01B5D57BD /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD17AF4BCE5FE5AB29B17095 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
@@ -22,7 +21,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = WakeScroll/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WakeScroll/Info.plist; sourceTree = "<group>"; };
 		2F7DD54EB92F325B14660E0D /* libPods-WakeScroll.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WakeScroll.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5307F5BE2ED89F0900428DAB /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		7A755C7D6AB57D7F3E9C8728 /* Pods-WakeScroll.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WakeScroll.debug.xcconfig"; path = "Target Support Files/Pods-WakeScroll/Pods-WakeScroll.debug.xcconfig"; sourceTree = "<group>"; };
 		A3DBEED70FC3D419B6E3F9A4 /* Pods-WakeScroll.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WakeScroll.release.xcconfig"; path = "Target Support Files/Pods-WakeScroll/Pods-WakeScroll.release.xcconfig"; sourceTree = "<group>"; };
 		A66F1CFA5C90D82C4D63BA71 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = WakeScroll/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -79,7 +77,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				5307F5BE2ED89F0900428DAB /* Products.storekit */,
 				13B07FAE1A68108700A75B9A /* WakeScroll */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -198,7 +195,6 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				5307F5BF2ED89F0900428DAB /* Products.storekit in Resources */,
 				2009C5D3A3EF3E3F64844ACA /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
