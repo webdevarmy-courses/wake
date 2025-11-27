@@ -2,7 +2,7 @@
   "expo": {
     "name": "Wake Scroll",
     "slug": "doomsapp",
-    "version": "1.0.4",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/logo.png",
     "scheme": "doomsapp",
@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.coursebydevarmy.doomsapp",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "displayName": "Wake Scroll",
       "icon": "./assets/images/logo.png",
       "infoPlist": {
