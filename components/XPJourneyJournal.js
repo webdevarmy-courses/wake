@@ -1,4 +1,3 @@
-import { BlurView } from "expo-blur";
 import React, {
   forwardRef,
   useEffect,
@@ -22,7 +21,6 @@ import { getReflections } from "../utils/reflectionManager";
 import { getTaskCompletions } from "../utils/taskManager";
 import { getTimerSessions } from "../utils/timerManager";
 import { getXPHistory } from "../utils/xpManager";
-import PaywallModal from "./PaywallModal";
 
 const { width } = Dimensions.get("window");
 
@@ -520,36 +518,7 @@ const XPJourneyJournal = forwardRef((props, ref) => {
               );
             }
 
-            // For non-premium users, show blurred cards with lock overlay
-            if (!isPremiumMember) {
-              return (
-                <View key={dayData.dateString} style={styles.lockedCardContainer}>
-                  {/* Render blurred card content */}
-                  <View style={styles.blurredCard}>
-                    {renderJourneyCard(dayData)}
-                    <BlurView
-                      intensity={20}
-                      style={styles.cardBlurOverlay}
-                      tint="light"
-                    />
-                  </View>
-                  
-                  {/* Lock icon and upgrade prompt */}
-                  <View style={styles.cardLockOverlay}>
-                    <Text style={styles.smallLockIcon}>🔒</Text>
-                    <Text style={styles.smallLockTitle}>Premium History</Text>
-                    <TouchableOpacity
-                      style={styles.smallUpgradeButton}
-                      onPress={() => setShowPaywall(true)}
-                    >
-                      <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            }
-
-            // For premium users, show all cards normally
+            // Show all cards normally for all users (no paywall)
             return (
               <React.Fragment key={dayData.dateString}>
                 {renderJourneyCard(dayData)}
@@ -558,12 +527,6 @@ const XPJourneyJournal = forwardRef((props, ref) => {
           })
         )}
       </ScrollView>
-
-      {/* Paywall Modal */}
-      <PaywallModal
-        visible={showPaywall}
-        onClose={() => setShowPaywall(false)}
-      />
     </View>
   );
 });

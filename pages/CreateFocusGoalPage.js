@@ -68,12 +68,7 @@ const CreateFocusGoalPage = () => {
   };
 
   const handleEnableStreaksToggle = (value) => {
-    if (value && !isPremiumMember) {
-      setShowPaywall(true);
-      return;
-    }
-    
-    // Premium user or disabling streaks - allow the change
+    // Enable Streaks available for all users (no paywall)
     setEnableStreaks(value);
   };
 
@@ -348,7 +343,7 @@ const CreateFocusGoalPage = () => {
                   <View style={styles.toggleInfo}>
                     <Text style={styles.toggleLabel}>🔥 Enable Streaks</Text>
                     <Text style={styles.toggleDescription}>
-                      Track consecutive days{!isPremiumMember ? " (premium) 🔒" : ""}
+                      Track consecutive days
                     </Text>
                   </View>
                   <Switch

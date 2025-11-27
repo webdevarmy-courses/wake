@@ -124,13 +124,9 @@ const ReflectPage = () => {
     setCalendarClickDisabled(true);
     setTimeout(() => setCalendarClickDisabled(false), 1000); // 1 second debounce
     
-    if (isPremiumMember) {
-      setShowCalendar(true);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } else {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      setShowPaywall(true);
-    }
+    // Open calendar for all users (no paywall)
+    setShowCalendar(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const handleReturn = () => {

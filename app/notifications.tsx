@@ -137,23 +137,8 @@ export default function NotificationsPage() {
   };
 
   const handleFrequencyChange = async (minutes: number) => {
-    // Check if user is trying to select a premium frequency (anything other than 45 min)
-    if (minutes !== 45 && !isPremiumMember) {
-      Alert.alert(
-        "Custom frequencies require premium",
-        "Upgrade to premium to customize your notification timing and find the perfect rhythm for your mindful awareness.",
-        [
-          { text: "Maybe Later", style: "cancel" },
-          { 
-            text: "Upgrade Now", 
-            style: "default",
-            onPress: () => setShowPaywall(true)
-          }
-        ]
-      );
-      return;
-    }
-
+    // All frequencies are now available for everyone (no paywall)
+    
     // Animate the chip bounce
     const animation = chipAnimations[minutes];
     Animated.sequence([
@@ -411,13 +396,7 @@ export default function NotificationsPage() {
   );
 
   const handleSleepModeToggle = async () => {
-    // Check if user is premium
-    if (!isPremiumMember) {
-      setShowPaywall(true);
-      return;
-    }
-
-    // Premium users - proceed with normal functionality
+    // Sleep mode is now available for everyone (no paywall)
     const newState = !sleepModeEnabled;
     setSleepModeEnabled(newState);
     
@@ -679,7 +658,6 @@ export default function NotificationsPage() {
                         style={[
                           styles.chip,
                           selectedFrequency === option.value && styles.chipSelected,
-                          option.value !== 45 && !isPremiumMember && styles.chipPremium,
                         ]}
                         onPress={() => notificationsEnabled && handleFrequencyChange(option.value)}
                         disabled={!notificationsEnabled}
@@ -692,7 +670,6 @@ export default function NotificationsPage() {
                             ]}
                           >
                             {option.label}
-                            {option.value !== 45 && !isPremiumMember && " 🔒"}
                           </Text>
                           <Text
                             style={[
@@ -764,7 +741,7 @@ export default function NotificationsPage() {
                     ]}>
                       {sleepModeEnabled 
                         ? '✅ Sleep Mode On' 
-                        : `💤 Enable Sleep Mode${!isPremiumMember ? ' (🔒)' : ''}`
+                        : '💤 Enable Sleep Mode'
                       }
                     </Text>
                   </TouchableOpacity>

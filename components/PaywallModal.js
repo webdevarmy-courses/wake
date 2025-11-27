@@ -197,7 +197,14 @@ const PaywallModal = ({ visible, onClose }) => {
   };
 
   const handleStartTrial = async () => {
-    console.log(`Start trial tapped for ${selectedPlan} plan`);
+    console.log('🔵 START TRIAL TAPPED');
+    console.log('Selected plan:', selectedPlan);
+    console.log('Current offering:', currentOffering?.identifier);
+    console.log('Available packages:', currentOffering?.availablePackages?.map(pkg => ({
+      id: pkg.identifier,
+      type: pkg.packageType,
+      price: pkg.product?.priceString
+    })));
     
     if (selectedPlan === "weekly") {
       await handleWeeklyPurchase();

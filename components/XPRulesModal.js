@@ -3,24 +3,23 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
-  Dimensions,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    Dimensions,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  XP_ACTIVITIES,
-  getEarnedBadges,
-  getNextMilestone,
-  getRandomQuote,
+    XP_ACTIVITIES,
+    getEarnedBadges,
+    getNextMilestone,
+    getRandomQuote,
 } from "../constants/xpActivities";
 import useRevenueCat from "../hooks/useRevenueCat";
 import { getStreak, getXP, getXPHistory } from "../utils/xpManager";
-import PaywallModal from "./PaywallModal";
 import XpGraph from "./XpGraph";
 
 const { width, height } = Dimensions.get("window");
@@ -275,36 +274,8 @@ const XPRulesModal = ({ visible, onClose }) => {
 
             {/* XP Graph */}
             <View style={styles.chartContainer}>
-              {isPremiumMember ? (
-                <XpGraph xpHistory={xpHistory} />
-              ) : (
-                <View style={styles.lockedChartContainer}>
-                  {/* Render blurred chart */}
-                  <View style={styles.blurredChart}>
-                    <XpGraph xpHistory={xpHistory} />
-                    <BlurView
-                      intensity={20}
-                      style={styles.chartBlurOverlay}
-                      tint="light"
-                    />
-                  </View>
-                  
-                  {/* Lock icon and upgrade prompt */}
-                  <View style={styles.lockOverlay}>
-                    <Text style={styles.lockIcon}>🔒</Text>
-                    <Text style={styles.lockTitle}>Premium Analytics</Text>
-                    <Text style={styles.lockDescription}>
-                      Unlock detailed progress tracking and insights
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.upgradeButton}
-                      onPress={() => setShowPaywall(true)}
-                    >
-                      <Text style={styles.upgradeButtonText}>Upgrade Now</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+              {/* XP Graph available for all users (no paywall) */}
+              <XpGraph xpHistory={xpHistory} />
             </View>
 
             {/* How to Earn XP - Activity Cards */}
@@ -340,101 +311,41 @@ const XPRulesModal = ({ visible, onClose }) => {
               <View style={styles.milestoneContainer}>
                 <Text style={styles.milestoneTitle}>Next Milestone</Text>
                 
-                {isPremiumMember ? (
-                  <>
-                    <View style={styles.milestoneHeader}>
-                      <Text style={styles.milestoneEmoji}>
-                        {nextMilestone.emoji}
-                      </Text>
-                      <View style={styles.milestoneInfo}>
-                        <Text style={styles.milestoneName}>
-                          {nextMilestone.name}
-                        </Text>
-                        <Text style={styles.milestoneProgress}>
-                          {totalXP} / {nextMilestone.requiredXP} XP
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.progressBarContainer}>
-                      <View style={styles.progressBarBackground}>
-                        <Animated.View
-                          style={[
-                            styles.progressBarFill,
-                            { width: `${getMilestoneProgress()}%` },
-                          ]}
-                        />
-                      </View>
-                      <Text style={styles.progressPercentage}>
-                        {Math.round(getMilestoneProgress())}%
-                      </Text>
-                    </View>
-
-                    <Text style={styles.milestoneDescription}>
-                      Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
-                      {nextMilestone.name} {nextMilestone.emoji}
+                {/* Milestone available for all users (no paywall) */}
+                <>
+                  <View style={styles.milestoneHeader}>
+                    <Text style={styles.milestoneEmoji}>
+                      {nextMilestone.emoji}
                     </Text>
-                  </>
-                ) : (
-                  <View style={styles.lockedMilestoneContainer}>
-                    {/* Render blurred milestone content */}
-                    <View style={styles.blurredMilestone}>
-                      <View style={styles.milestoneHeader}>
-                        <Text style={styles.milestoneEmoji}>
-                          {nextMilestone.emoji}
-                        </Text>
-                        <View style={styles.milestoneInfo}>
-                          <Text style={styles.milestoneName}>
-                            {nextMilestone.name}
-                          </Text>
-                          <Text style={styles.milestoneProgress}>
-                            {totalXP} / {nextMilestone.requiredXP} XP
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View style={styles.progressBarContainer}>
-                        <View style={styles.progressBarBackground}>
-                          <Animated.View
-                            style={[
-                              styles.progressBarFill,
-                              { width: `${getMilestoneProgress()}%` },
-                            ]}
-                          />
-                        </View>
-                        <Text style={styles.progressPercentage}>
-                          {Math.round(getMilestoneProgress())}%
-                        </Text>
-                      </View>
-
-                      <Text style={styles.milestoneDescription}>
-                        Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
-                        {nextMilestone.name} {nextMilestone.emoji}
+                    <View style={styles.milestoneInfo}>
+                      <Text style={styles.milestoneName}>
+                        {nextMilestone.name}
                       </Text>
-
-                      <BlurView
-                        intensity={20}
-                        style={styles.milestoneBlurOverlay}
-                        tint="light"
-                      />
-                    </View>
-                    
-                    {/* Lock icon and upgrade prompt */}
-                    <View style={styles.milestoneLockOverlay}>
-                      <Text style={styles.smallLockIcon}>🔒</Text>
-                      <Text style={styles.smallLockTitle}>Premium Milestones</Text>
-                      {/* <Text style={styles.lockDescription}>
-                        Track your progress and unlock achievements
-                      </Text> */}
-                      <TouchableOpacity
-                        style={styles.smallUpgradeButton}
-                        onPress={() => setShowPaywall(true)}
-                      >
-                        <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
-                      </TouchableOpacity>
+                      <Text style={styles.milestoneProgress}>
+                        {totalXP} / {nextMilestone.requiredXP} XP
+                      </Text>
                     </View>
                   </View>
-                )}
+
+                  <View style={styles.progressBarContainer}>
+                    <View style={styles.progressBarBackground}>
+                      <Animated.View
+                        style={[
+                          styles.progressBarFill,
+                          { width: `${getMilestoneProgress()}%` },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.progressPercentage}>
+                      {Math.round(getMilestoneProgress())}%
+                    </Text>
+                  </View>
+
+                  <Text style={styles.milestoneDescription}>
+                    Earn {nextMilestone.requiredXP - totalXP} more XP to unlock{" "}
+                    {nextMilestone.name} {nextMilestone.emoji}
+                  </Text>
+                </>
               </View>
             )}
 
@@ -443,48 +354,15 @@ const XPRulesModal = ({ visible, onClose }) => {
               <View style={styles.badgesContainer}>
                 <Text style={styles.badgesTitle}>Your Badges</Text>
                 
-                {isPremiumMember ? (
-                  <View style={styles.badgesGrid}>
-                    {earnedBadges.map((badge) => (
-                      <View key={badge.id} style={styles.badgeItem}>
-                        <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
-                        <Text style={styles.badgeName}>{badge.name}</Text>
-                      </View>
-                    ))}
-                  </View>
-                ) : (
-                  <View style={styles.lockedBadgesContainer}>
-                    {/* Render blurred badges content */}
-                    <View style={styles.blurredBadges}>
-                      <View style={styles.badgesGrid}>
-                        {earnedBadges.map((badge) => (
-                          <View key={badge.id} style={styles.badgeItem}>
-                            <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
-                            <Text style={styles.badgeName}>{badge.name}</Text>
-                          </View>
-                        ))}
-                      </View>
-
-                      <BlurView
-                        intensity={20}
-                        style={styles.badgesBlurOverlay}
-                        tint="light"
-                      />
+                {/* Badges available for all users (no paywall) */}
+                <View style={styles.badgesGrid}>
+                  {earnedBadges.map((badge) => (
+                    <View key={badge.id} style={styles.badgeItem}>
+                      <Text style={styles.badgeEmoji}>{badge.emoji}</Text>
+                      <Text style={styles.badgeName}>{badge.name}</Text>
                     </View>
-                    
-                    {/* Lock icon and upgrade prompt */}
-                    <View style={styles.badgesLockOverlay}>
-                      <Text style={styles.smallLockIcon}>🔒</Text>
-                      <Text style={styles.smallLockTitle}>Premium Badges</Text>
-                      <TouchableOpacity
-                        style={styles.smallUpgradeButton}
-                        onPress={() => setShowPaywall(true)}
-                      >
-                        <Text style={styles.smallUpgradeButtonText}>Upgrade Now</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                )}
+                  ))}
+                </View>
               </View>
             )}
 
@@ -495,12 +373,6 @@ const XPRulesModal = ({ visible, onClose }) => {
           </ScrollView>
         </Animated.View>
       </BlurView>
-
-      {/* Paywall Modal */}
-      <PaywallModal
-        visible={showPaywall}
-        onClose={() => setShowPaywall(false)}
-      />
     </Modal>
   );
 };

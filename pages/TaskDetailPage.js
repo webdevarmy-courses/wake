@@ -190,11 +190,8 @@ const TaskDetailPage = () => {
     setCalendarClickDisabled(true);
     setTimeout(() => setCalendarClickDisabled(false), 1000); // 1 second debounce
     
-    if (isPremiumMember) {
-      setShowCalendar(true);
-    } else {
-      setShowPaywall(true);
-    }
+    // Calendar available for all users (no paywall)
+    setShowCalendar(true);
   };
 
   const handleViewProgress = () => {
@@ -204,11 +201,8 @@ const TaskDetailPage = () => {
     setCalendarClickDisabled(true);
     setTimeout(() => setCalendarClickDisabled(false), 500); // Shorter debounce for alerts
     
-    if (isPremiumMember) {
-      setShowCalendar(true);
-    } else {
-      setShowPaywall(true);
-    }
+    // Calendar available for all users (no paywall)
+    setShowCalendar(true);
   };
 
   const handleMarkDone = async () => {
